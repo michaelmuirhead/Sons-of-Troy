@@ -1,0 +1,536 @@
+/* ==========================================================================
+   The Last Sons of Troy — Pottery palette theme (text-based)
+   ========================================================================== */
+
+:root {
+  --clr-terracotta: #c44536;
+  --clr-ochre: #e07a5f;
+  --clr-black: #1a1a1a;
+  --clr-cream: #f4ecd8;
+  --clr-parchment: #e8d5b7;
+  --clr-aegean: #2e5c8a;
+  --clr-olive: #6b7a3a;
+  --clr-border: #3d2b1f;
+  --clr-muted: #7a6a54;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--clr-black);
+  color: var(--clr-cream);
+  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+  overflow: hidden;
+}
+
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 1fr 320px;
+  height: 100vh;
+  width: 100vw;
+  background: var(--clr-cream);
+}
+
+/* ---------- Top bar ---------- */
+
+.top-bar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: var(--clr-cream);
+  color: var(--clr-black);
+  border-bottom: 4px double var(--clr-black);
+  position: relative;
+}
+
+.top-bar .colony-name {
+  font-size: 26px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--clr-terracotta);
+  margin: 0;
+}
+
+.top-bar .date {
+  font-size: 14px;
+  font-style: italic;
+  color: var(--clr-border);
+  margin-top: 2px;
+}
+
+.top-bar .resources {
+  display: flex;
+  gap: 12px;
+}
+
+.resource-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 12px;
+  background: var(--clr-parchment);
+  border: 2px solid var(--clr-black);
+  min-width: 72px;
+}
+
+.resource-chip .label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--clr-border);
+}
+
+.resource-chip .value {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--clr-terracotta);
+}
+
+/* ---------- Main chronicle view ---------- */
+
+.chronicle {
+  grid-row: 2;
+  grid-column: 1;
+  padding: 24px 32px;
+  overflow-y: auto;
+  background: var(--clr-cream);
+  position: relative;
+}
+
+.chronicle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 24px;
+  right: 24px;
+  height: 8px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--clr-terracotta) 0 10px,
+    transparent 10px 18px,
+    var(--clr-terracotta) 18px 22px,
+    transparent 22px 30px
+  );
+}
+
+.chronicle-entry {
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--clr-parchment);
+  color: var(--clr-black);
+  font-size: 15px;
+  line-height: 1.55;
+  display: flex;
+  gap: 10px;
+}
+
+.chronicle-entry.featured {
+  border-bottom: 2px solid var(--clr-terracotta);
+  padding: 14px 0;
+}
+
+.chronicle-entry .when {
+  flex: 0 0 90px;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--clr-terracotta);
+  padding-top: 3px;
+}
+
+.chronicle-entry .text {
+  flex: 1;
+  color: var(--clr-black);
+}
+
+.illustration-wrap {
+  margin: 12px 0 6px 0;
+  max-width: 520px;
+}
+
+.illustration {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ---------- Side panel ---------- */
+
+.side-panel {
+  grid-row: 2;
+  grid-column: 2;
+  background: var(--clr-parchment);
+  color: var(--clr-black);
+  border-left: 4px double var(--clr-black);
+  overflow-y: auto;
+}
+
+.panel-section {
+  padding: 14px 16px;
+  border-bottom: 2px solid var(--clr-black);
+}
+
+.panel-section h2 {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--clr-terracotta);
+  border-bottom: 2px solid var(--clr-terracotta);
+  padding-bottom: 4px;
+}
+
+.colonist-card {
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  background: var(--clr-cream);
+  border: 1px solid var(--clr-black);
+  color: var(--clr-black);
+  font-size: 13px;
+}
+
+.colonist-card .name {
+  font-weight: bold;
+  color: var(--clr-black);
+}
+
+.colonist-card .meta {
+  font-size: 11px;
+  color: var(--clr-border);
+  font-style: italic;
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.colonist-card .status {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 1px 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: var(--clr-terracotta);
+  color: var(--clr-cream);
+}
+
+.colonist-card .status.idle {
+  background: var(--clr-muted);
+  color: var(--clr-cream);
+}
+
+.building-entry,
+.location-entry {
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  background: var(--clr-cream);
+  border: 1px solid var(--clr-black);
+  font-size: 12px;
+  color: var(--clr-black);
+}
+
+.building-entry .progress {
+  font-size: 11px;
+  color: var(--clr-terracotta);
+  font-style: italic;
+}
+
+.location-entry.visited {
+  opacity: 0.7;
+}
+
+.location-entry .loc-name {
+  font-weight: bold;
+  font-size: 13px;
+}
+
+/* ---------- Action bar ---------- */
+
+.action-bar {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  background: var(--clr-black);
+  border-top: 4px double var(--clr-cream);
+}
+
+.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  background: var(--clr-cream);
+  color: var(--clr-black);
+  border: 2px solid var(--clr-cream);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--clr-terracotta);
+  color: var(--clr-cream);
+  border-color: var(--clr-terracotta);
+  transform: translateY(-1px);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn.primary {
+  background: var(--clr-terracotta);
+  color: var(--clr-cream);
+  border-color: var(--clr-terracotta);
+}
+
+.btn.primary:hover:not(:disabled) {
+  background: var(--clr-ochre);
+  border-color: var(--clr-ochre);
+}
+
+.btn.ghost {
+  background: transparent;
+  color: var(--clr-cream);
+}
+
+.btn.ghost:hover:not(:disabled) {
+  background: var(--clr-cream);
+  color: var(--clr-black);
+}
+
+/* ---------- Modal ---------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 26, 26, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: var(--clr-cream);
+  color: var(--clr-black);
+  border: 4px double var(--clr-black);
+  padding: 24px 28px;
+  max-width: 620px;
+  width: 92%;
+  max-height: 86vh;
+  overflow-y: auto;
+  box-shadow: 0 0 0 8px var(--clr-terracotta);
+  position: relative;
+}
+
+.modal h3 {
+  margin: 0 0 14px 0;
+  font-size: 22px;
+  color: var(--clr-terracotta);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+  border-bottom: 2px solid var(--clr-black);
+  padding-bottom: 8px;
+}
+
+.modal .prose {
+  font-size: 15px;
+  line-height: 1.55;
+  margin: 12px 0 16px 0;
+  font-style: italic;
+  color: var(--clr-black);
+}
+
+.modal .choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.modal .choice-btn {
+  padding: 12px 16px;
+  background: var(--clr-parchment);
+  border: 2px solid var(--clr-black);
+  color: var(--clr-black);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.modal .choice-btn:hover:not(:disabled) {
+  background: var(--clr-terracotta);
+  color: var(--clr-cream);
+  transform: translateX(3px);
+}
+
+.modal .choice-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.modal .choice-btn .sub {
+  display: block;
+  font-size: 11px;
+  font-weight: normal;
+  letter-spacing: 1px;
+  color: var(--clr-border);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.modal .choice-btn:hover .sub {
+  color: var(--clr-cream);
+}
+
+.modal .close-row {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ---------- Scrollbar polish ---------- */
+
+.chronicle::-webkit-scrollbar,
+.side-panel::-webkit-scrollbar,
+.modal::-webkit-scrollbar {
+  width: 10px;
+}
+
+.chronicle::-webkit-scrollbar-thumb,
+.side-panel::-webkit-scrollbar-thumb,
+.modal::-webkit-scrollbar-thumb {
+  background: var(--clr-terracotta);
+  border: 2px solid var(--clr-cream);
+}
+
+.chronicle::-webkit-scrollbar-track,
+.side-panel::-webkit-scrollbar-track,
+.modal::-webkit-scrollbar-track {
+  background: var(--clr-parchment);
+}
+
+/* ---------- Small helpers ---------- */
+
+.muted {
+  color: var(--clr-muted);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--clr-border);
+  margin-top: 8px;
+  text-align: center;
+}
+
+.cost-chip {
+  display: inline-block;
+  font-size: 11px;
+  padding: 1px 6px;
+  background: var(--clr-terracotta);
+  color: var(--clr-cream);
+  margin-right: 4px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.cost-chip.insufficient {
+  background: var(--clr-muted);
+}
+
+.cost-chip.gain {
+  background: var(--clr-olive);
+}
+
+.cost-chip.time {
+  background: var(--clr-aegean);
+}
+
+.cost-row {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* ---------- Action bar groups ---------- */
+
+.action-group {
+  display: flex;
+  gap: 10px;
+}
+
+.action-group.right {
+  margin-left: auto;
+}
+
+.action-bar {
+  justify-content: space-between;
+}
+
+.action-bar .btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+}
+
+.action-bar .btn .sub {
+  font-size: 9px;
+  font-weight: normal;
+  letter-spacing: 1px;
+  margin-top: 3px;
+  color: var(--clr-border);
+  font-style: italic;
+}
+
+.action-bar .btn.primary .sub {
+  color: var(--clr-cream);
+  opacity: 0.85;
+}
+
+.action-bar .btn.ghost .sub {
+  color: var(--clr-muted);
+}
+
+/* ---------- Event illustration in modal ---------- */
+
+.event-illustration {
+  max-width: 320px;
+  margin: 0 auto 12px auto;
+}
+
+.visited-list {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
