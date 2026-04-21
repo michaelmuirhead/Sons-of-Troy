@@ -49,12 +49,18 @@ export function createInitialState() {
         day: 1,
         season: SEASONS[0],
         text: 'The Trojan ship grounds on the beach. Smoke of Ilium fades astern.',
-        illustration: 'founding',
       },
       {
         day: 1,
         season: SEASONS[0],
         text: 'Our captain steps ashore and names this place New Ilion.',
+      },
+    ],
+    history: [
+      {
+        day: 1,
+        food: 30, wood: 12, stone: 6, faith: 2, pottery: 0,
+        colonists: FOUNDERS.length,
       },
     ],
     activeEvent: null,
@@ -69,12 +75,35 @@ function nowStamp(state) {
   return { day: state.day, season: SEASONS[state.seasonIndex] };
 }
 
-function log(state, text, illustration = null) {
+function log(state, text) {
   state.chronicle = [
-    { ...nowStamp(state), text, illustration: illustration || undefined },
+    { ...nowStamp(state), text },
     ...state.chronicle,
   ];
   if (state.chronicle.length > 200) state.chronicle.length = 200;
+}
+
+function snapshotHistory(state) {
+  const entry = {
+    day: state.day,
+    food: Math.round(state.resources.food || 0),
+    wood: Math.round(state.resources.wood || 0),
+    stone: Math.round(state.resources.stone || 0),
+    faith: Math.round(state.resources.faith || 0),
+    pottery: Math.round(state.resources.pottery || 0),
+    colonists: state.colonists.length,
+  };
+  const existing = state.history || [];
+  const last = existing[existing.length - 1];
+  // Replace if same day (helps when same-day actions compound), else append
+  if (last && last.day === entry.day) {
+    state.history = [...existing.slice(0, -1), entry];
+  } else {
+    state.history = [...existing, entry];
+  }
+  if (state.history.length > 120) {
+    state.history = state.history.slice(-120);
+  }
 }
 
 function idleColonists(state) {
@@ -277,13 +306,14 @@ function endDay(state) {
     if (Math.random() < 0.45) {
       const evt = pickEvent();
       next.activeEvent = evt;
-      log(next, `Event: ${evt.title}`, evt.illustration);
+      log(next, `Event: ${evt.title}`);
       next.eventCooldown = 4; // small floor so nothing fires next turn
     } else {
       next.eventCooldown = 1;
     }
   }
 
+  snapshotHistory(next);
   return next;
 }
 
@@ -305,7 +335,22 @@ export function loadState() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return null;
-    return JSON.parse(raw);
+    const loaded = JSON.parse(raw);
+    // Back-fill for saves created before resource history was tracked.
+    if (!loaded.history || loaded.history.length === 0) {
+      loaded.history = [
+        {
+          day: loaded.day || 1,
+          food: Math.round(loaded.resources?.food || 0),
+          wood: Math.round(loaded.resources?.wood || 0),
+          stone: Math.round(loaded.resources?.stone || 0),
+          faith: Math.round(loaded.resources?.faith || 0),
+          pottery: Math.round(loaded.resources?.pottery || 0),
+          colonists: (loaded.colonists || []).length,
+        },
+      ];
+    }
+    return loaded;
   } catch {
     return null;
   }

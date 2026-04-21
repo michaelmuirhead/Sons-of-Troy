@@ -134,11 +134,6 @@ body,
   gap: 10px;
 }
 
-.chronicle-entry.featured {
-  border-bottom: 2px solid var(--clr-terracotta);
-  padding: 14px 0;
-}
-
 .chronicle-entry .when {
   flex: 0 0 90px;
   font-size: 11px;
@@ -152,17 +147,6 @@ body,
 .chronicle-entry .text {
   flex: 1;
   color: var(--clr-black);
-}
-
-.illustration-wrap {
-  margin: 12px 0 6px 0;
-  max-width: 520px;
-}
-
-.illustration {
-  width: 100%;
-  height: auto;
-  display: block;
 }
 
 /* ---------- Side panel ---------- */
@@ -521,16 +505,54 @@ body,
   color: var(--clr-muted);
 }
 
-/* ---------- Event illustration in modal ---------- */
-
-.event-illustration {
-  max-width: 320px;
-  margin: 0 auto 12px auto;
-}
-
 .visited-list {
   margin-top: 4px;
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+/* ---------- Resource graph ---------- */
+
+.resource-graph {
+  background: var(--clr-cream);
+  border: 1px solid var(--clr-black);
+  padding: 8px 6px 6px 6px;
+}
+
+.resource-graph svg {
+  display: block;
+}
+
+.graph-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+  justify-content: center;
+}
+
+.legend-chip {
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border: 1.5px solid;
+  cursor: pointer;
+  transition: opacity 0.12s;
+}
+
+.legend-chip.off {
+  opacity: 0.55;
+}
+
+.legend-chip:hover {
+  opacity: 1;
+}
+
+.graph-empty {
+  padding: 10px;
+  text-align: center;
 }

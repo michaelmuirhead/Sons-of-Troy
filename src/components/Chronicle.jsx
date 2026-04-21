@@ -1,9 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import Illustration from '../illustrations/Illustration.jsx';
 
 /**
- * The central prose view of the game. Renders chronicle entries newest-first,
- * with pottery-style SVG illustrations inline on featured entries.
+ * The central prose view of the game. Renders chronicle entries newest-first.
  */
 export default function Chronicle({ entries }) {
   const scrollRef = useRef(null);
@@ -16,17 +14,11 @@ export default function Chronicle({ entries }) {
   return (
     <main className="chronicle" ref={scrollRef}>
       {entries.map((entry, i) => (
-        <div
-          key={`${entry.day}-${i}`}
-          className={`chronicle-entry ${entry.illustration ? 'featured' : ''}`}
-        >
+        <div key={`${entry.day}-${i}`} className="chronicle-entry">
           <span className="when">
             {entry.season} D{entry.day}
           </span>
-          <div className="text">
-            <div>{entry.text}</div>
-            {entry.illustration && <Illustration name={entry.illustration} />}
-          </div>
+          <div className="text">{entry.text}</div>
         </div>
       ))}
       {entries.length === 0 && (

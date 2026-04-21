@@ -1,16 +1,22 @@
 import React from 'react';
 import { BUILDINGS } from '../state/buildings.js';
 import { TASKS } from '../state/tasks.js';
+import ResourceGraph from './ResourceGraph.jsx';
 
 /**
- * Right-side roster panel — lists named colonists with their current task,
- * buildings (complete and under construction), and discovered locations.
+ * Right-side roster panel — resource trends, roster, buildings, and
+ * discovered locations.
  */
 export default function RosterPanel({ state }) {
-  const { colonists, buildings, construction, locations } = state;
+  const { colonists, buildings, construction, locations, history } = state;
 
   return (
     <aside className="side-panel">
+      <section className="panel-section">
+        <h2>Trends</h2>
+        <ResourceGraph history={history} />
+      </section>
+
       <section className="panel-section">
         <h2>Roster ({colonists.length})</h2>
         {colonists.map((c) => (

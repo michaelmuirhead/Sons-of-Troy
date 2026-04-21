@@ -1,6 +1,5 @@
 import React from 'react';
 import Modal from './Modal.jsx';
-import Illustration from '../illustrations/Illustration.jsx';
 
 /**
  * Non-dismissible modal for active story events. The player MUST pick
@@ -11,11 +10,6 @@ export default function EventModal({ event, onChoose }) {
 
   return (
     <Modal title={event.title} dismissible={false}>
-      {event.illustration && (
-        <div className="event-illustration">
-          <Illustration name={event.illustration} />
-        </div>
-      )}
       <p className="prose">{event.description}</p>
       <div className="choices">
         {event.choices.map((c) => (

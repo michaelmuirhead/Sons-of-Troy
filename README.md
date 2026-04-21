@@ -2,7 +2,7 @@
 
 An ancient-world colony sim where a band of Trojan refugees break from Aeneas' expedition and found their own colony. Built as a single-page browser app with **Vite + React**, rendered in a cartoon Greek-pottery palette, and scaffolded for a **GitHub → Vercel** workflow.
 
-This repository contains **Phase 0** — a playable, text-based prototype. The chronicle of New Ilion is written in prose; key moments are illustrated with inline Greek-pottery SVG scenes. See `GAME_DESIGN.md` for the full vision (Manor Lords + RimWorld + Civilization + Total War) and the phased roadmap toward it.
+This repository contains **Phase 0** — a playable, text-based prototype. The chronicle of New Ilion is written in prose, and a resource-trend graph in the side panel lets you track food, wood, stone, faith, pottery, and colonist count over time. See `GAME_DESIGN.md` for the full vision (Manor Lords + RimWorld + Civilization + Total War) and the phased roadmap toward it.
 
 ---
 
@@ -16,8 +16,8 @@ This repository contains **Phase 0** — a playable, text-based prototype. The c
   - **Build** granary, shrine, palisade, kiln, or longhouse
   - **Explore** discovered locations (olive cove, ruined shrine, hidden spring…)
   - **Respond** to story events (a sail on the horizon, Athena's owl, fever, news of Aeneas…)
-- A rolling prose **Chronicle** that forms the narrative spine of the game, with pottery-style SVG illustrations inline on featured entries
-- A side **Roster panel** listing colonists, buildings (complete and under construction), and known locations
+- A rolling prose **Chronicle** that forms the narrative spine of the game
+- A side **Roster panel** with a live **resource-trend graph** (toggle lines for food, wood, stone, faith, pottery, colonists), plus colonists, buildings (complete and under construction), and known locations
 - A season clock (Spring → Summer → Autumn → Winter), with seasonal yield modifiers
 - **Browser save** via `localStorage` — close the tab, come back, resume
 
@@ -100,18 +100,17 @@ Colony Sims/
     │   ├── events.js       Story-event pool with choices
     │   └── names.js        Trojan names, origins, traits
     ├── components/
-    │   ├── TopBar.jsx      Colony name + day + season + resources
-    │   ├── Chronicle.jsx   Main prose view (newest-first)
-    │   ├── RosterPanel.jsx Colonists + buildings + known places
-    │   ├── ActionBar.jsx   Dispatch / Build / Explore / End Day / Reset
-    │   ├── Modal.jsx       Generic overlay
+    │   ├── TopBar.jsx        Colony name + day + season + resources
+    │   ├── Chronicle.jsx     Main prose view (newest-first)
+    │   ├── RosterPanel.jsx   Trends graph + colonists + buildings + places
+    │   ├── ResourceGraph.jsx SVG line chart of resources over time
+    │   ├── ActionBar.jsx     Dispatch / Build / Explore / End Day / Reset
+    │   ├── Modal.jsx         Generic overlay
     │   ├── DispatchModal.jsx
     │   ├── BuildModal.jsx
     │   ├── ExploreModal.jsx
-    │   └── EventModal.jsx  (non-dismissible)
-    ├── illustrations/
-    │   └── Illustration.jsx  Pottery-style SVG scene registry
-    └── game-archive/       Earlier Phaser prototype, kept for reference
+    │   └── EventModal.jsx    (non-dismissible)
+    └── game-archive/         Earlier Phaser prototype, kept for reference
 ```
 
 ---
