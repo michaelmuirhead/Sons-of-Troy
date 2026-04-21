@@ -1,0 +1,20 @@
+{
+  "name": "last-sons-of-troy",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "description": "An ancient-world text-based colony sim. Trojan refugees break from Aeneas and found their own colony.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.0"
+  }
+}

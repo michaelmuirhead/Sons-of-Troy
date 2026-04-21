@@ -1,20 +1,25 @@
 # The Last Sons of Troy
 
-An ancient-world colony sim where a band of Trojan refugees break from Aeneas' expedition and found their own colony. Built as a single-page browser app with **Vite + React + Phaser 3**, rendered in a cartoon Greek-pottery palette, and scaffolded for a **GitHub → Vercel** workflow.
+An ancient-world colony sim where a band of Trojan refugees break from Aeneas' expedition and found their own colony. Built as a single-page browser app with **Vite + React**, rendered in a cartoon Greek-pottery palette, and scaffolded for a **GitHub → Vercel** workflow.
 
-This repository contains **Phase 0** — a playable prototype. See `GAME_DESIGN.md` for the full vision (Manor Lords + RimWorld + Civilization + Total War) and the phased roadmap toward it.
+This repository contains **Phase 0** — a playable, text-based prototype. The chronicle of New Ilion is written in prose; key moments are illustrated with inline Greek-pottery SVG scenes. See `GAME_DESIGN.md` for the full vision (Manor Lords + RimWorld + Civilization + Total War) and the phased roadmap toward it.
 
 ---
 
 ## What's in the prototype
 
-- A small coastal map rendered in the pottery palette (terracotta, black, cream, Aegean blue)
+- A click-driven, turn-based loop — each **End Day** advances time, ticks tasks and construction, consumes food, and rolls for story events
 - Five founding colonists with Trojan names, origins, and traits (Helenus, Andromache, Pandarus, Cassandra, Dymas)
-- Four resource types: food (wheat, olive, fish), wood (oak), stone, pottery
-- A granary that receives deliveries and a shrine to Athena
-- A season clock that cycles the screen's tint (Spring → Summer → Autumn → Winter)
-- A rolling **Chronicle** log in the side panel
-- A story-event system with choices (a sail on the horizon, Athena's owl, a fever, news of Aeneas…)
+- Five resource types: **food**, **wood**, **stone**, **faith**, **pottery**
+- Four interaction types from the action bar:
+  - **Dispatch** a colonist to a task (forage, fell, quarry, fish, tend, scout)
+  - **Build** granary, shrine, palisade, kiln, or longhouse
+  - **Explore** discovered locations (olive cove, ruined shrine, hidden spring…)
+  - **Respond** to story events (a sail on the horizon, Athena's owl, fever, news of Aeneas…)
+- A rolling prose **Chronicle** that forms the narrative spine of the game, with pottery-style SVG illustrations inline on featured entries
+- A side **Roster panel** listing colonists, buildings (complete and under construction), and known locations
+- A season clock (Spring → Summer → Autumn → Winter), with seasonal yield modifiers
+- **Browser save** via `localStorage` — close the tab, come back, resume
 
 ---
 
@@ -75,31 +80,38 @@ If that works, Vercel will work.
 
 ```
 Colony Sims/
-├── GAME_DESIGN.md         Full vision + phased roadmap
-├── README.md              This file
+├── GAME_DESIGN.md          Full vision + phased roadmap
+├── README.md               This file
 ├── package.json
 ├── vite.config.js
 ├── vercel.json
 ├── index.html
 ├── public/
-│   └── favicon.svg        Pottery-style Trojan icon
+│   └── favicon.svg         Pottery-style Trojan icon
 └── src/
-    ├── main.jsx           React entry
-    ├── App.jsx            Grid layout: top bar + game canvas + side panel
-    ├── App.css            Pottery-palette theme
-    ├── eventBus.js        Pub/sub between React and Phaser
-    ├── game/
-    │   ├── PhaserGame.jsx Mounts Phaser inside React
-    │   ├── config.js      Palette + game constants
-    │   ├── sprites.js     Procedural pottery-style sprites
-    │   ├── ColonyScene.js Main gameplay scene
-    │   ├── Colonist.js    Named colonist + simple AI
-    │   ├── ResourceNode.js
-    │   └── events.js      Story-event pool
-    └── ui/
-        ├── TopBar.jsx
-        ├── ColonistPanel.jsx
-        └── EventModal.jsx
+    ├── main.jsx            React entry
+    ├── App.jsx             Top bar + chronicle + roster + action bar
+    ├── App.css             Pottery-palette theme
+    ├── state/
+    │   ├── gameState.js    Reducer, action types, save/load
+    │   ├── tasks.js        Tasks (forage, fell, quarry, fish, tend, scout)
+    │   ├── buildings.js    Buildings (granary, shrine, palisade, kiln, longhouse)
+    │   ├── locations.js    Discoverable places along the coast
+    │   ├── events.js       Story-event pool with choices
+    │   └── names.js        Trojan names, origins, traits
+    ├── components/
+    │   ├── TopBar.jsx      Colony name + day + season + resources
+    │   ├── Chronicle.jsx   Main prose view (newest-first)
+    │   ├── RosterPanel.jsx Colonists + buildings + known places
+    │   ├── ActionBar.jsx   Dispatch / Build / Explore / End Day / Reset
+    │   ├── Modal.jsx       Generic overlay
+    │   ├── DispatchModal.jsx
+    │   ├── BuildModal.jsx
+    │   ├── ExploreModal.jsx
+    │   └── EventModal.jsx  (non-dismissible)
+    ├── illustrations/
+    │   └── Illustration.jsx  Pottery-style SVG scene registry
+    └── game-archive/       Earlier Phaser prototype, kept for reference
 ```
 
 ---
@@ -108,11 +120,12 @@ Colony Sims/
 
 See `GAME_DESIGN.md` for the full roadmap. In short:
 
-1. **Phase 1 — Manor Lords layer:** buildable village, placement tool, logistics
-2. **Phase 2 — RimWorld layer:** needs, moods, relationships, personal events
-3. **Phase 3 — Civilization layer:** tech, diplomacy, neighbors, generations
-4. **Phase 4 — Total War layer:** tactical battles on a zoom-in battle map
-5. **Phase 5 — Polish:** scenarios, music, procedural maps, itch/Steam
+1. **Phase 0 (current):** text + pottery illustrations, click-driven turns
+2. **Phase 1 — Manor Lords layer:** buildable village, placement tool, logistics
+3. **Phase 2 — RimWorld layer:** needs, moods, relationships, personal events
+4. **Phase 3 — Civilization layer:** tech, diplomacy, neighbors, generations
+5. **Phase 4 — Total War layer:** tactical battles on a zoom-in battle map
+6. **Phase 5 — Polish:** scenarios, music, procedural maps, itch/Steam
 
 ---
 
