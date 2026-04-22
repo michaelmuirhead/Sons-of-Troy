@@ -58,8 +58,8 @@ export default function App() {
       {openModal === 'dispatch' && (
         <DispatchModal
           state={state}
-          onDispatch={(familyId, taskId, crewSize) =>
-            dispatch({ type: 'DISPATCH_CREW', familyId, taskId, crewSize })
+          onDispatch={(familyId, taskId, crewSize, patronOf) =>
+            dispatch({ type: 'DISPATCH_CREW', familyId, taskId, crewSize, patronOf })
           }
           onClose={() => setOpenModal(null)}
         />

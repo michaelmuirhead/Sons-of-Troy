@@ -5,6 +5,11 @@ import { TASKS } from '../state/tasks.js';
  * A single row of seven compact house cards across the top of the dashboard.
  * Each card is ~1/7th the width, equal flex. House color sits along the top
  * as a thick accent bar. All seven political stats are readable at a glance.
+ *
+ * Each card now surfaces the head's age and up to one named notable, so the
+ * dashboard carries the political biography of the colony at a glance.
+ * Seceded houses are rendered grey and struck-through — the empty place in
+ * the council is part of the story.
  */
 export default function HouseStrip({ families }) {
   return (
@@ -34,9 +39,32 @@ function CompactFamilyCard({ family }) {
   ].filter((s) => s.value > 0);
 
   const shortName = family.name.replace('House of ', '');
+  const headAge = family.head.age ? ` · ${family.head.age}` : '';
+  const firstNotable = (family.notables || [])[0];
+
   const crewLine = family.activeCrew
-    ? `${TASKS[family.activeCrew.taskId]?.label || 'Working'} · ${family.activeCrew.daysRemaining}d`
+    ? `${TASKS[family.activeCrew.taskId]?.label || 'Working'} · ${family.activeCrew.daysRemaining}d${family.activeCrew.patronOf ? ' · patron' : ''}`
     : 'Idle';
+
+  if (family.seceded) {
+    return (
+      <div
+        className="hs-card seceded"
+        style={{ borderTop: `5px solid ${family.color}` }}
+        title={`${family.name} has sailed from New Ilion.`}
+      >
+        <div className="hs-name" style={{ color: family.color }}>
+          {shortName}
+        </div>
+        <div className="hs-head" style={{ textDecoration: 'line-through' }}>
+          sailed
+        </div>
+        <div className="muted" style={{ fontSize: 10, marginTop: 6 }}>
+          {family.ship} is gone.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -44,12 +72,28 @@ function CompactFamilyCard({ family }) {
       style={{
         borderTop: `5px solid ${family.color}`,
       }}
-      title={`${family.name} — ${family.epithet}\nHead: ${family.head.name}\nShip: ${family.ship}`}
+      title={`${family.name} — ${family.epithet}\nHead: ${family.head.name}${headAge ? ` (age ${family.head.age})` : ''}\nShip: ${family.ship}`}
     >
       <div className="hs-name" style={{ color: family.color }}>
         {shortName}
       </div>
-      <div className="hs-head">{family.head.name.split(' ')[0]}</div>
+      <div className="hs-head">
+        {family.head.name.split(' ')[0]}
+        {family.head.age && (
+          <span className="muted" style={{ marginLeft: 4, fontSize: 9 }}>
+            {family.head.age}
+          </span>
+        )}
+      </div>
+      {firstNotable && (
+        <div className="hs-notable" title={`${firstNotable.name} — ${firstNotable.role}`}>
+          <span className="hs-notable-caret">›</span>
+          {firstNotable.name.split(' ')[0]}
+          <span className="muted" style={{ marginLeft: 4, fontSize: 9 }}>
+            {firstNotable.age}
+          </span>
+        </div>
+      )}
 
       <div className="hs-demo-label">
         <span>{total}</span>

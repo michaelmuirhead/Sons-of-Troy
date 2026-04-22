@@ -9,12 +9,13 @@ import React, { useState } from 'react';
  */
 
 const METRICS = [
-  { key: 'food',       label: 'Food',   color: '#c44536' }, // terracotta
-  { key: 'wood',       label: 'Wood',   color: '#6b7a3a' }, // olive
-  { key: 'stone',      label: 'Stone',  color: '#2e5c8a' }, // aegean
-  { key: 'faith',      label: 'Faith',  color: '#e07a5f' }, // ochre
+  { key: 'food',       label: 'Food',    color: '#c44536' }, // terracotta
+  { key: 'wood',       label: 'Wood',    color: '#6b7a3a' }, // olive
+  { key: 'stone',      label: 'Stone',   color: '#2e5c8a' }, // aegean
+  { key: 'faith',      label: 'Faith',   color: '#e07a5f' }, // ochre
   { key: 'pottery',    label: 'Pottery', color: '#7a6a54' }, // muted
-  { key: 'population', label: 'Souls',  color: '#1a1a1a' }, // black
+  { key: 'bronze',     label: 'Bronze',  color: '#a07030' }, // aged bronze
+  { key: 'population', label: 'Souls',   color: '#1a1a1a' }, // black
 ];
 
 const DEFAULT_ON = new Set(['food', 'wood', 'stone']);

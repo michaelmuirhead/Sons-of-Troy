@@ -7,9 +7,11 @@ import { availableWorkers } from '../state/families.js';
  */
 export default function ActionBar({ state, onOpen, onEndDay, onReset }) {
   const freeHouses = state.families.filter(
-    (f) => !f.activeCrew && availableWorkers(f) > 0,
+    (f) => !f.seceded && !f.activeCrew && availableWorkers(f) > 0,
   ).length;
-  const activeHouses = state.families.filter((f) => f.activeCrew).length;
+  const activeHouses = state.families.filter(
+    (f) => !f.seceded && f.activeCrew,
+  ).length;
   const hasEvent = !!state.activeEvent;
   const knownLocs = state.locations.filter((l) => l.discovered && !l.visited)
     .length;

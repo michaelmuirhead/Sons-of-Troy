@@ -50,12 +50,11 @@ export const BUILDINGS = {
     id: 'kiln',
     label: 'Pottery kiln',
     description:
-      'A low domed kiln of clay. The first jars come out red as sunset.',
+      'A low domed kiln of clay. The first jars come out red as sunset. Unlocks the potter task.',
     cost: { wood: 6, stone: 8 },
     days: 4,
     effects: {
       unlockTask: 'potter',
-      potteryPerDay: 0.5,
     },
     completeLine: 'The Kiln breathes its first smoke. The first jars are inscribed with owls.',
   },
@@ -72,6 +71,19 @@ export const BUILDINGS = {
       moraleBonus: 1,
     },
     completeLine: 'The Longhouse is raised. The first meal within it runs late into the night.',
+  },
+
+  harbor: {
+    id: 'harbor',
+    label: 'Harbor',
+    description:
+      'A stone mole and a timber quay. Traders from the far north and the Greek isles now find our bay. Pottery, bronze, and amber begin to move through New Ilion.',
+    cost: { wood: 24, stone: 16 },
+    days: 8,
+    effects: {
+      enablesTrade: true,
+    },
+    completeLine: 'The Harbor is finished. Within the week, a long black ship puts in from the north.',
   },
 };
 

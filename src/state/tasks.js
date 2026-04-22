@@ -85,6 +85,19 @@ export const TASKS = {
         ? `Scouts of ${family.name} return with news of ${discovered.name} — ${discovered.description}`
         : `Scouts of ${family.name} walk home weary. The coast has no new secret tonight.`,
   },
+
+  potter: {
+    id: 'potter',
+    label: 'Fire the kiln',
+    description: 'Throw clay, paint owls and geometric bands, fire the jars red as sunset. Requires a kiln.',
+    days: 3,
+    base: { pottery: 2 },
+    warriorsOnly: false,
+    requiresBuilding: 'kiln',
+    influenceReward: 1.5,
+    completeLine: (family, crew, y) =>
+      `The potters of ${family.name} draw ${y.pottery} jars from the kiln, still warm to the touch.`,
+  },
 };
 
 /* --------------------------------------------------------------------- */

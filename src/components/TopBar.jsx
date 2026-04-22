@@ -1,16 +1,27 @@
 import React from 'react';
 import { SEASONS } from '../state/gameState.js';
 
-const ORDER = ['food', 'wood', 'stone', 'faith', 'pottery'];
+const ORDER = ['food', 'wood', 'stone', 'faith', 'pottery', 'bronze', 'amber'];
 
 export default function TopBar({ state }) {
   const season = SEASONS[state.seasonIndex];
   return (
     <header className="top-bar">
       <div>
-        <div className="colony-name">{state.colonyName}</div>
+        <div className="colony-name">
+          {state.colonyName}
+          {state.monarchy && (
+            <span
+              className="spec-badge"
+              style={{ marginLeft: 8, background: 'var(--clr-terracotta)', color: 'var(--clr-cream)' }}
+              title="The council has been dissolved."
+            >
+              Kingdom
+            </span>
+          )}
+        </div>
         <div className="date">
-          Day {state.day} · {season}
+          Year {state.year || 1} · Day {state.day} · {season}
         </div>
       </div>
       <div className="resources">

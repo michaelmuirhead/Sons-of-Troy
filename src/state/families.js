@@ -4,11 +4,13 @@
  * Each family is the base political and labor unit. A family has:
  *  - a name, epithet, and accent color (for the UI)
  *  - a ship it arrived on (flavor)
- *  - a current head (sometimes a named founder from the Iliad/Aeneid)
+ *  - a current head (age-tracked; succession fires when the head dies)
+ *  - 1-2 named notables — rising figures who can inherit the house
  *  - a demographic population split (warriors/craftsmen/women/children/elders)
  *  - preferredTasks (drives specialization bonuses and ambition)
  *  - stance tags (drives council voting on events)
  *  - dynamic state: influence, ambition, loyalty
+ *  - relationships: patronage bonds with other houses
  *
  * FAMILIES_SEED is a plain data source; createFamilies() turns it into the
  * runtime objects used by the reducer.
@@ -31,7 +33,11 @@ export const FAMILIES_SEED = [
     epithet: 'the counselors',
     color: '#2e5c8a', // aegean — diplomats look outward
     ship: 'The Theano', // Antenor's wife, priestess of Athena
-    head: { name: 'Helicaon of Antenor', note: "Antenor's surviving son, husband to a daughter of Priam" },
+    head: { name: 'Helicaon of Antenor', age: 52, note: "Antenor's surviving son, husband to a daughter of Priam" },
+    notables: [
+      { name: 'Theano the Younger', age: 22, role: 'priestess of Athena', bucket: 'women', trait: 'wise' },
+      { name: 'Agenor of Antenor', age: 28, role: 'young statesman', bucket: 'craftsmen', trait: 'diplomat' },
+    ],
     preferredTasks: ['tend', 'scout'],
     stance: ['wise', 'welcoming'],
     population: { warriors: 6, craftsmen: 10, women: 14, children: 12, elders: 6 },
@@ -42,7 +48,11 @@ export const FAMILIES_SEED = [
     epithet: 'the priests of Apollo',
     color: '#e07a5f', // ochre — priestly
     ship: 'The Phoebus',
-    head: { name: 'Cassandra', note: 'Daughter of Priam, priestess, cursed to speak true prophecy unheeded' },
+    head: { name: 'Cassandra', age: 44, note: 'Daughter of Priam, priestess, cursed to speak true prophecy unheeded' },
+    notables: [
+      { name: 'Polydamas', age: 32, role: 'reader of omens', bucket: 'craftsmen', trait: 'prophetic' },
+      { name: 'Chryseis the Younger', age: 19, role: 'novice priestess', bucket: 'women', trait: 'devout' },
+    ],
     preferredTasks: ['tend', 'forage'],
     stance: ['pious', 'wise'],
     population: { warriors: 4, craftsmen: 8, women: 18, children: 11, elders: 9 },
@@ -53,7 +63,11 @@ export const FAMILIES_SEED = [
     epithet: 'the ruined',
     color: '#7a1a1a', // deep rust — burned house
     ship: 'The Burnt Column',
-    head: { name: 'Andromache', note: 'Widow of Hector, whose son was cast from the walls of Troy' },
+    head: { name: 'Andromache', age: 42, note: 'Widow of Hector, whose son was cast from the walls of Troy' },
+    notables: [
+      { name: 'Idomen of Ucalegon', age: 24, role: 'burned son grown to spear', bucket: 'warriors', trait: 'vengeful' },
+      { name: 'Halia', age: 35, role: 'matron of the wounded', bucket: 'women', trait: 'grim' },
+    ],
     preferredTasks: ['quarry', 'forage'],
     stance: ['wrathful', 'cautious'],
     population: { warriors: 5, craftsmen: 12, women: 16, children: 8, elders: 7 },
@@ -64,7 +78,11 @@ export const FAMILIES_SEED = [
     epithet: 'the royal spears',
     color: '#c44536', // terracotta — warrior red
     ship: 'The Ilian Lance',
-    head: { name: 'Aretus of Hicetaon', note: "Nephew of Priam, one of the last warriors of his uncle's line" },
+    head: { name: 'Aretus of Hicetaon', age: 38, note: "Nephew of Priam, one of the last warriors of his uncle's line" },
+    notables: [
+      { name: 'Polypoetes son of Aretus', age: 21, role: 'spearman, heir apparent', bucket: 'warriors', trait: 'brash' },
+      { name: 'Eurymedon', age: 30, role: 'spearmaster', bucket: 'warriors', trait: 'disciplined' },
+    ],
     preferredTasks: ['scout', 'fell'],
     stance: ['bold', 'traditional'],
     population: { warriors: 14, craftsmen: 8, women: 12, children: 10, elders: 4 },
@@ -75,7 +93,11 @@ export const FAMILIES_SEED = [
     epithet: 'the old blood of Dardania',
     color: '#6b7a3a', // olive — old, rooted
     ship: 'The Anchises',
-    head: { name: 'Dymas of Dardania', note: 'Dardanian kinsman of Anchises, skeptical of Greek gifts and Greek strangers alike' },
+    head: { name: 'Dymas of Dardania', age: 56, note: 'Dardanian kinsman of Anchises, skeptical of Greek gifts and Greek strangers alike' },
+    notables: [
+      { name: 'Asius of Dardania', age: 34, role: 'master builder', bucket: 'craftsmen', trait: 'builder' },
+      { name: 'Medea of Capys', age: 30, role: 'matron of the hearth', bucket: 'women', trait: 'shrewd' },
+    ],
     preferredTasks: ['fell', 'quarry'],
     stance: ['traditional', 'cautious'],
     population: { warriors: 9, craftsmen: 12, women: 14, children: 9, elders: 6 },
@@ -86,7 +108,11 @@ export const FAMILIES_SEED = [
     epithet: 'the archers of Arisbe',
     color: '#8a5a2b', // tanned leather — frontier hunters
     ship: 'The Hellespont',
-    head: { name: 'Pandarus the Archer', note: 'Lycian-born ally, the bow that broke the truce at Ilium' },
+    head: { name: 'Pandarus the Archer', age: 48, note: 'Lycian-born ally, the bow that broke the truce at Ilium' },
+    notables: [
+      { name: 'Nisus of Hyrtacus', age: 23, role: 'swift scout', bucket: 'warriors', trait: 'swift' },
+      { name: 'Euryalus of Arisbe', age: 20, role: "Nisus's sworn companion", bucket: 'warriors', trait: 'loyal' },
+    ],
     preferredTasks: ['scout', 'fish'],
     stance: ['bold', 'welcoming'],
     population: { warriors: 11, craftsmen: 9, women: 13, children: 11, elders: 4 },
@@ -97,7 +123,11 @@ export const FAMILIES_SEED = [
     epithet: 'the lorekeepers',
     color: '#3d2b1f', // dark brown — old memory
     ship: 'The Memory of Ilion',
-    head: { name: 'Helenus of Ilion', note: 'Son of Priam, seer, reads omens in the flight of birds' },
+    head: { name: 'Helenus of Ilion', age: 54, note: 'Son of Priam, seer, reads omens in the flight of birds' },
+    notables: [
+      { name: 'Daphne of Ilion', age: 26, role: 'young lorekeeper', bucket: 'women', trait: 'scribe' },
+      { name: 'Actor the Scribe', age: 45, role: 'keeper of tablets', bucket: 'craftsmen', trait: 'patient' },
+    ],
     preferredTasks: ['tend', 'forage'],
     stance: ['pious', 'wise'],
     population: { warriors: 3, craftsmen: 9, women: 15, children: 10, elders: 11 },
@@ -109,11 +139,15 @@ export const FAMILIES_SEED = [
 export function createFamilies() {
   return FAMILIES_SEED.map((f) => ({
     ...f,
+    head: { ...f.head },
+    notables: (f.notables || []).map((n) => ({ ...n })),
     population: { ...f.population },
-    influence: 10,     // starting prestige — everyone is equal on the beach
-    ambition: 0,       // 0-100; rises when used outside specialty
-    loyalty: 70,       // 0-100; decays with ignored ambition, overrides in council
-    activeCrew: null,  // { taskId, size, daysRemaining }
+    influence: 10,        // starting prestige — everyone is equal on the beach
+    ambition: 0,          // 0-100; rises when used outside specialty
+    loyalty: 70,          // 0-100; decays with ignored ambition, overrides in council
+    activeCrew: null,     // { taskId, size, daysRemaining, patronOf? }
+    relationships: {},    // { [otherFamilyId]: bondStrength 0-100 } — patronage bonds
+    seceded: false,       // true after the house leaves the colony
   }));
 }
 
@@ -138,9 +172,16 @@ export function totalPopulation(family) {
   return (p.warriors || 0) + (p.craftsmen || 0) + (p.women || 0) + (p.children || 0) + (p.elders || 0);
 }
 
-/** Sum of mouths across all houses. */
+/** Sum of mouths across all houses (only non-seceded count). */
 export function colonyPopulation(families) {
-  return families.reduce((sum, f) => sum + totalPopulation(f), 0);
+  return families
+    .filter((f) => !f.seceded)
+    .reduce((sum, f) => sum + totalPopulation(f), 0);
+}
+
+/** Houses still in the colony. */
+export function activeHouses(families) {
+  return families.filter((f) => !f.seceded);
 }
 
 // ---------------- Specialization / stance ----------------
@@ -179,11 +220,12 @@ export function familyPreferredChoice(family, choices) {
 
 /** Compute council tally: { [choiceId]: { families: [...], weight: number } } */
 export function councilTally(families, choices) {
+  const voters = activeHouses(families);
   const tally = {};
   for (const ch of choices) {
     tally[ch.id] = { families: [], weight: 0 };
   }
-  for (const f of families) {
+  for (const f of voters) {
     const pref = familyPreferredChoice(f, choices);
     tally[pref.id].families.push(f.id);
     tally[pref.id].weight += Math.max(1, Math.round(f.influence));

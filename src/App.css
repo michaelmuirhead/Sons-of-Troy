@@ -1009,3 +1009,76 @@ body,
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+/* ---------- Notable line inside house card ---------- */
+
+.hs-notable {
+  font-size: 10px;
+  color: var(--clr-muted);
+  font-style: italic;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hs-notable-caret {
+  color: var(--clr-border);
+  margin-right: 3px;
+}
+
+/* ---------- Seceded house card ---------- */
+
+.hs-card.seceded {
+  opacity: 0.55;
+  background: var(--clr-cream);
+  filter: grayscale(0.4);
+}
+
+.hs-card.seceded .hs-name {
+  text-decoration: line-through;
+}
+
+/* ---------- Patronage UI in dispatch modal ---------- */
+
+.patron-row {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px dashed var(--clr-border);
+  background: var(--clr-cream);
+}
+
+.patron-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--clr-black);
+}
+
+.patron-select {
+  margin-top: 8px;
+  width: 100%;
+  padding: 4px 6px;
+  font-family: inherit;
+  border: 1px solid var(--clr-black);
+  background: var(--clr-cream);
+  color: var(--clr-black);
+}
+
+.patron-note {
+  margin-top: 6px;
+  font-size: 10px;
+  font-style: italic;
+  color: var(--clr-muted);
+  line-height: 1.4;
+}
+
+/* ---------- Crisis banner (secession / coup header) ---------- */
+
+.crisis-banner {
+  font-size: 12px;
+  color: var(--clr-black);
+}
+

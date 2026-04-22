@@ -5,6 +5,9 @@
  * Every choice now carries `tags` drawn from the stance vocabulary
  * (pious, cautious, bold, welcoming, traditional, wrathful, wise).
  * Families vote for the choice that best matches their own stance.
+ *
+ * Trade events (tagged trade: true) fire more often when a harbor is built
+ * and shuttle pottery ↔ bronze ↔ amber ↔ grain.
  */
 
 export const EVENTS = [
@@ -124,7 +127,7 @@ export const EVENTS = [
         id: 'welcome',
         label: 'Take him in. There are too few of us as it is.',
         tags: ['welcoming', 'wise'],
-        joinsFamily: 'capys', // he goes to House of Capys as an adult warrior
+        joinsFamily: 'capys',
         logLine: 'Iphitus joins the colony under the banner of House Capys. He kneels before the shrine and weeps.',
       },
       {
@@ -161,29 +164,6 @@ export const EVENTS = [
   },
 
   {
-    id: 'amber_trader',
-    title: 'An amber trader walks the beach',
-    description:
-      'A stranger in rough northern furs walks up the beach with a pouch of amber beads. He speaks only a few words of our tongue. He wants grain.',
-    choices: [
-      {
-        id: 'trade',
-        label: 'Trade grain for amber.',
-        tags: ['welcoming', 'wise'],
-        effects: { food: -5, faith: 3 },
-        logLine: 'Amber beads are added to the shrine of Athena.',
-      },
-      {
-        id: 'decline',
-        label: 'Send him on. We need our grain.',
-        tags: ['cautious', 'traditional'],
-        effects: {},
-        logLine: 'The trader left, calling us graceless in his own tongue.',
-      },
-    ],
-  },
-
-  {
     id: 'cassandra_vision',
     title: "A vision in the evening fire",
     description:
@@ -207,10 +187,149 @@ export const EVENTS = [
   },
 ];
 
+/**
+ * Trade events — pottery ↔ bronze ↔ amber ↔ grain cycle.
+ * These fire at higher frequency once the harbor is built.
+ */
+export const TRADE_EVENTS = [
+  {
+    id: 'amber_trader',
+    trade: true,
+    title: 'An amber trader walks the beach',
+    description:
+      'A stranger in rough northern furs walks up the beach with a pouch of amber beads. He speaks only a few words of our tongue. He wants grain.',
+    choices: [
+      {
+        id: 'trade',
+        label: 'Five measures of grain for a pouch of amber.',
+        tags: ['welcoming', 'wise'],
+        effects: { food: -5, amber: 3, faith: 1 },
+        logLine: 'Amber beads are added to the shrine of Athena. The trader departs well-fed.',
+      },
+      {
+        id: 'pottery_deal',
+        label: 'Offer him painted jars instead of bread.',
+        tags: ['bold', 'wise'],
+        effects: { pottery: -4, amber: 4 },
+        logLine: 'The trader turns the jars in his hands, whistles low, and takes them for twice the amber.',
+      },
+      {
+        id: 'decline',
+        label: 'Send him on. We need our grain.',
+        tags: ['cautious', 'traditional'],
+        effects: {},
+        logLine: 'The trader left, calling us graceless in his own tongue.',
+      },
+    ],
+  },
+
+  {
+    id: 'greek_merchant',
+    trade: true,
+    title: 'A Greek merchant puts in',
+    description:
+      'A long black ship with a painted eye on her prow slides into the bay. The captain, a broad-shouldered Achaean, steps ashore with a chest of bronze ingots. He wants pottery — the best we have.',
+    choices: [
+      {
+        id: 'trade_pottery',
+        label: 'Trade 6 jars for 4 ingots of bronze.',
+        tags: ['welcoming', 'wise'],
+        effects: { pottery: -6, bronze: 4 },
+        logLine: 'The Achaean sails with our jars stacked in straw. We have bronze for the spear-tips.',
+      },
+      {
+        id: 'hard_bargain',
+        label: 'Drive a hard bargain. Offer 4 jars for 4 ingots.',
+        tags: ['bold', 'traditional'],
+        effects: { pottery: -4, bronze: 4, faith: -1 },
+        logLine: 'He scowls and spits in the sand, but takes the deal. Some gods were offended.',
+      },
+      {
+        id: 'refuse',
+        label: 'Refuse the man of Argos. We remember Mycenae.',
+        tags: ['wrathful', 'traditional'],
+        effects: { faith: 1 },
+        logLine: 'The black ship turns from the harbor. Old wounds do not bleed, but they remember.',
+      },
+    ],
+  },
+
+  {
+    id: 'northern_smith',
+    trade: true,
+    title: 'A wandering smith seeks tin',
+    description:
+      'A smith in a leather apron sets his hammer on a flat stone at the kiln. He has four bronze blades to sell and wants amber for his woman in the north.',
+    choices: [
+      {
+        id: 'amber_for_bronze',
+        label: 'Two pouches of amber for four bronze blades.',
+        tags: ['welcoming', 'wise'],
+        effects: { amber: -2, bronze: 4 },
+        logLine: 'The smith pockets the amber and leaves his blades. He sings as he walks the strand.',
+      },
+      {
+        id: 'pottery_for_bronze',
+        label: 'Offer him jars of honey wine and a brace of owls.',
+        tags: ['bold', 'welcoming'],
+        effects: { pottery: -3, bronze: 3, food: -2 },
+        logLine: 'He laughs and takes the jars, leaves three blades behind. Good enough for a summer.',
+      },
+      {
+        id: 'turn_away',
+        label: 'We have no need of another strange-tongued smith.',
+        tags: ['cautious', 'traditional'],
+        effects: {},
+        logLine: 'The smith moves on down the coast. Someone else gets the blades.',
+      },
+    ],
+  },
+
+  {
+    id: 'grain_caravan',
+    trade: true,
+    title: 'A grain caravan from the plains',
+    description:
+      'An inland caravan of mules and goat-skin tents winds down out of the hills. Their leader, a broad old woman, wants amber and bronze. She has twenty measures of barley.',
+    choices: [
+      {
+        id: 'pay_amber',
+        label: 'Pay in amber for the grain.',
+        tags: ['wise', 'welcoming'],
+        effects: { amber: -3, food: 20 },
+        logLine: 'The caravan unloads barley in the long evening. The granary is full for the first time.',
+      },
+      {
+        id: 'pay_bronze',
+        label: 'Pay in bronze for the grain.',
+        tags: ['bold', 'welcoming'],
+        effects: { bronze: -2, food: 18 },
+        logLine: 'She takes the bronze ingots in rough hands and hefts them approvingly.',
+      },
+      {
+        id: 'turn_away',
+        label: 'We will not part with bronze or amber for bread.',
+        tags: ['cautious', 'traditional'],
+        effects: {},
+        logLine: 'She shrugs and turns her mules east.',
+      },
+    ],
+  },
+];
+
 // Track last to avoid immediate repeats
 let _lastEventId = null;
 export function pickEvent() {
   const candidates = EVENTS.filter((e) => e.id !== _lastEventId);
+  const evt = candidates[Math.floor(Math.random() * candidates.length)];
+  _lastEventId = evt.id;
+  return evt;
+}
+
+/** Picks a trade event if any exist. Same anti-repeat guard. */
+export function pickTradeEvent() {
+  const candidates = TRADE_EVENTS.filter((e) => e.id !== _lastEventId);
+  if (candidates.length === 0) return null;
   const evt = candidates[Math.floor(Math.random() * candidates.length)];
   _lastEventId = evt.id;
   return evt;
