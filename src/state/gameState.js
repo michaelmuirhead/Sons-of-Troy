@@ -1,72 +1,92 @@
 /**
  * Game state + reducer for The Last Sons of Troy.
  *
- * The game is click-driven: the player calls actions (DISPATCH, BUILD,
- * EXPLORE, RESOLVE_EVENT, END_DAY) and the reducer advances state. Time
- * only advances on END_DAY (or inside END_DAY as dispatched tasks tick).
+ * The colony is organized into seven Trojan houses (families). Each house
+ * has its own population, head, specialization, stance, and political
+ * standing (influence / ambition / loyalty). The player dispatches crews
+ * drawn from a single house, builds, explores, and responds to events —
+ * which now resolve as council votes with the families weighing in.
+ *
+ * Time only advances on END_DAY.
  */
 
 import { TASKS, resolveTask, taskDuration } from './tasks.js';
 import { BUILDINGS, canAfford, payCost } from './buildings.js';
 import { LOCATIONS, getUndiscoveredLocations } from './locations.js';
 import { pickEvent } from './events.js';
-import { newId } from './names.js';
+import {
+  createFamilies,
+  colonyPopulation,
+  familyPreferredChoice,
+  councilTally,
+} from './families.js';
 
 export const SEASONS = ['Spring', 'Summer', 'Autumn', 'Winter'];
 const DAYS_PER_SEASON = 12;
 
 // ---------------- Initial state ----------------
 
-const FOUNDERS = [
-  { name: 'Helenus of Ilion',    origin: 'Born in Troy',        traits: ['Seer-touched', 'Pious'] },
-  { name: 'Andromache',          origin: 'Born in Troy',        traits: ['Grieving', 'Temperate'] },
-  { name: 'Pandarus the Archer', origin: 'A Lycian ally of the king', traits: ['Swift-footed', 'Scarred'] },
-  { name: 'Cassandra',           origin: 'Born in Troy',        traits: ['Seer-touched', 'Dreamer'] },
-  { name: 'Dymas of Dardania',   origin: 'Born in Dardania',    traits: ['Ox-strong', 'Fierce'] },
-];
-
 export function createInitialState() {
+  const families = createFamilies();
+  const pop = colonyPopulation(families);
+
   return {
     colonyName: 'New Ilion',
     day: 1,
     seasonIndex: 0,
-    resources: { food: 30, wood: 12, stone: 6, faith: 2, pottery: 0 },
-    colonists: FOUNDERS.map((f) => ({
-      id: newId('c'),
-      name: f.name,
-      origin: f.origin,
-      traits: f.traits,
-      status: 'idle',
-      currentTask: null,
-      taskDaysRemaining: 0,
-      taskResult: null,  // temporary, used to surface completion to UI
-    })),
-    buildings: [],              // completed buildings
-    construction: [],           // under-construction, ticks down with days
+    // Starting stores scale with population so ~350 settlers can actually eat.
+    resources: {
+      food: Math.round(pop * 1.2),   // roughly 2 weeks of food
+      wood: 30,
+      stone: 14,
+      faith: 4,
+      pottery: 0,
+    },
+    families,
+    buildings: [],
+    construction: [],
     locations: LOCATIONS.map((l) => ({ ...l })),
-    chronicle: [
-      {
-        day: 1,
-        season: SEASONS[0],
-        text: 'The Trojan ship grounds on the beach. Smoke of Ilium fades astern.',
-      },
-      {
-        day: 1,
-        season: SEASONS[0],
-        text: 'Our captain steps ashore and names this place New Ilion.',
-      },
-    ],
+    chronicle: openingChronicle(families),
     history: [
       {
         day: 1,
-        food: 30, wood: 12, stone: 6, faith: 2, pottery: 0,
-        colonists: FOUNDERS.length,
+        food: Math.round(pop * 1.2),
+        wood: 30,
+        stone: 14,
+        faith: 4,
+        pottery: 0,
+        population: pop,
       },
     ],
     activeEvent: null,
-    eventCooldown: 2,           // days until next event eligibility
-    lastEventChoiceLog: null,
+    eventCooldown: 3,
+    lastCouncilTally: null, // most recent event's vote, for surfacing in chronicle
   };
+}
+
+function openingChronicle(families) {
+  const entries = [
+    {
+      day: 1,
+      season: SEASONS[0],
+      text:
+        'Seven ships ground on the beach at dawn. The smoke of Ilium is a line on the eastern horizon. We are what is left.',
+    },
+    {
+      day: 1,
+      season: SEASONS[0],
+      text:
+        'The captains meet at the high-water line and swear to name this place New Ilion. Seven houses, seven hearths, one council.',
+    },
+  ];
+  for (const f of families) {
+    entries.push({
+      day: 1,
+      season: SEASONS[0],
+      text: `${f.ship} carries ${f.name} — ${f.epithet}. ${f.head.name} speaks for them.`,
+    });
+  }
+  return entries;
 }
 
 // ---------------- Helpers ----------------
@@ -80,34 +100,7 @@ function log(state, text) {
     { ...nowStamp(state), text },
     ...state.chronicle,
   ];
-  if (state.chronicle.length > 200) state.chronicle.length = 200;
-}
-
-function snapshotHistory(state) {
-  const entry = {
-    day: state.day,
-    food: Math.round(state.resources.food || 0),
-    wood: Math.round(state.resources.wood || 0),
-    stone: Math.round(state.resources.stone || 0),
-    faith: Math.round(state.resources.faith || 0),
-    pottery: Math.round(state.resources.pottery || 0),
-    colonists: state.colonists.length,
-  };
-  const existing = state.history || [];
-  const last = existing[existing.length - 1];
-  // Replace if same day (helps when same-day actions compound), else append
-  if (last && last.day === entry.day) {
-    state.history = [...existing.slice(0, -1), entry];
-  } else {
-    state.history = [...existing, entry];
-  }
-  if (state.history.length > 120) {
-    state.history = state.history.slice(-120);
-  }
-}
-
-function idleColonists(state) {
-  return state.colonists.filter((c) => c.status === 'idle');
+  if (state.chronicle.length > 300) state.chronicle.length = 300;
 }
 
 function addResources(resources, delta) {
@@ -118,11 +111,80 @@ function addResources(resources, delta) {
   return out;
 }
 
+function snapshotHistory(state) {
+  const entry = {
+    day: state.day,
+    food: Math.round(state.resources.food || 0),
+    wood: Math.round(state.resources.wood || 0),
+    stone: Math.round(state.resources.stone || 0),
+    faith: Math.round(state.resources.faith || 0),
+    pottery: Math.round(state.resources.pottery || 0),
+    population: colonyPopulation(state.families),
+  };
+  const existing = state.history || [];
+  const last = existing[existing.length - 1];
+  if (last && last.day === entry.day) {
+    state.history = [...existing.slice(0, -1), entry];
+  } else {
+    state.history = [...existing, entry];
+  }
+  if (state.history.length > 120) {
+    state.history = state.history.slice(-120);
+  }
+}
+
+/** Reduce a family's population bucket by N, preferring non-warriors first. */
+function drawCrew(family, size, warriorsOnly) {
+  const p = { ...family.population };
+  let remaining = size;
+  if (warriorsOnly) {
+    const take = Math.min(remaining, p.warriors || 0);
+    p.warriors -= take;
+    remaining -= take;
+  } else {
+    // Drain order: craftsmen, women, then warriors.
+    for (const bucket of ['craftsmen', 'women', 'warriors']) {
+      const take = Math.min(remaining, p[bucket] || 0);
+      p[bucket] -= take;
+      remaining -= take;
+      if (remaining <= 0) break;
+    }
+  }
+  return p;
+}
+
+/** Restore a crew of N back into the family's pool (proportional to what was drawn). */
+function returnCrew(family, size, warriorsOnly) {
+  const p = { ...family.population };
+  if (warriorsOnly) {
+    p.warriors = (p.warriors || 0) + size;
+  } else {
+    // We don't perfectly remember what we drew from where; bias return to craftsmen/women.
+    let remaining = size;
+    for (const bucket of ['craftsmen', 'women', 'warriors']) {
+      if (remaining <= 0) break;
+      // return up to a fair share to each bucket
+      const share = Math.ceil(remaining / 3);
+      p[bucket] = (p[bucket] || 0) + share;
+      remaining -= share;
+    }
+  }
+  return p;
+}
+
+function updateFamily(state, familyId, patch) {
+  const idx = state.families.findIndex((f) => f.id === familyId);
+  if (idx === -1) return state;
+  const next = [...state.families];
+  next[idx] = { ...state.families[idx], ...patch };
+  return { ...state, families: next };
+}
+
 // ---------------- Reducer ----------------
 
 export function reducer(state, action) {
   switch (action.type) {
-    case 'DISPATCH':        return dispatch(state, action);
+    case 'DISPATCH_CREW':   return dispatchCrew(state, action);
     case 'BUILD':           return build(state, action);
     case 'EXPLORE_LOCATION': return exploreLocation(state, action);
     case 'RESOLVE_EVENT':   return resolveEvent(state, action);
@@ -132,23 +194,34 @@ export function reducer(state, action) {
   }
 }
 
-function dispatch(state, { colonistId, taskId }) {
+function dispatchCrew(state, { familyId, taskId, crewSize }) {
   const task = TASKS[taskId];
   if (!task) return state;
-  const idx = state.colonists.findIndex((c) => c.id === colonistId);
-  if (idx === -1) return state;
-  const c = state.colonists[idx];
-  if (c.status !== 'idle') return state;
+  const family = state.families.find((f) => f.id === familyId);
+  if (!family) return state;
+  if (family.activeCrew) return state;
 
-  const days = taskDuration(task, c);
-  const next = { ...state, colonists: [...state.colonists] };
-  next.colonists[idx] = {
-    ...c,
-    status: task.id === 'scout' ? 'scouting' : 'working',
-    currentTask: task.id,
-    taskDaysRemaining: days,
-  };
-  log(next, `${c.name} sets out to ${task.label.toLowerCase()}.`);
+  const size = Math.max(1, Math.floor(crewSize));
+  const pool = task.warriorsOnly
+    ? (family.population.warriors || 0)
+    : ((family.population.warriors || 0) + (family.population.craftsmen || 0) + (family.population.women || 0));
+  if (size > pool) return state;
+
+  const days = taskDuration(task, family, size);
+  const newPop = drawCrew(family, size, !!task.warriorsOnly);
+  const inSpec = family.preferredTasks.includes(taskId);
+  const ambitionDelta = inSpec ? -2 : +3;
+
+  let next = updateFamily(state, familyId, {
+    population: newPop,
+    activeCrew: { taskId, size, daysRemaining: days, warriorsOnly: !!task.warriorsOnly },
+    ambition: Math.max(0, Math.min(100, family.ambition + ambitionDelta)),
+  });
+
+  log(
+    next,
+    `${family.name} sends a party of ${size} to ${task.label.toLowerCase()}.`,
+  );
   return next;
 }
 
@@ -173,8 +246,7 @@ function exploreLocation(state, { locationId }) {
   const idx = state.locations.findIndex((l) => l.id === locationId);
   if (idx === -1) return state;
   const loc = state.locations[idx];
-  if (!loc.discovered) return state;
-  if (loc.visited) return state;
+  if (!loc.discovered || loc.visited) return state;
 
   const next = { ...state, locations: [...state.locations] };
   next.locations[idx] = { ...loc, visited: true };
@@ -196,85 +268,113 @@ function resolveEvent(state, { choiceId }) {
   const choice = evt.choices.find((c) => c.id === choiceId);
   if (!choice) return state;
 
+  // Determine who supported this choice vs. who dissented.
+  const tally = councilTally(state.families, evt.choices);
+  const supporters = new Set(tally[choice.id].families);
+  const dissenters = state.families.filter((f) => !supporters.has(f.id));
+
   let next = { ...state };
   if (choice.effects) {
     next.resources = addResources(state.resources, choice.effects);
   }
-  if (choice.addColonist) {
-    next.colonists = [
-      ...state.colonists,
-      {
-        id: newId('c'),
-        name: choice.addColonist.name,
-        origin: choice.addColonist.origin,
-        traits: choice.addColonist.traits || [],
-        status: 'idle',
-        currentTask: null,
-        taskDaysRemaining: 0,
-      },
-    ];
+
+  // "joinsFamily" — new settler joins a specific house as a warrior.
+  if (choice.joinsFamily) {
+    next.families = state.families.map((f) =>
+      f.id === choice.joinsFamily
+        ? { ...f, population: { ...f.population, warriors: (f.population.warriors || 0) + 1 } }
+        : f,
+    );
   }
 
+  // Supporters gain a point of influence; dissenters lose one and gain ambition.
+  next.families = (next.families || state.families).map((f) => {
+    if (supporters.has(f.id)) {
+      return { ...f, influence: f.influence + 1 };
+    }
+    return {
+      ...f,
+      influence: Math.max(0, f.influence - 1),
+      ambition: Math.min(100, f.ambition + 4),
+      loyalty: Math.max(0, f.loyalty - 1),
+    };
+  });
+
   next.activeEvent = null;
-  next.lastEventChoiceLog = choice.logLine;
+  next.lastCouncilTally = { choiceId: choice.id, tally, eventId: evt.id };
   if (choice.logLine) log(next, choice.logLine);
 
-  // Reset cooldown so the player isn't hit instantly again
+  if (dissenters.length > 0) {
+    const names = dissenters.map((f) => f.name.replace('House of ', '')).join(', ');
+    log(next, `The council grumbles: ${names} disagreed.`);
+  } else {
+    log(next, 'The council speaks with one voice.');
+  }
+
   next.eventCooldown = 3;
   return next;
 }
 
 function endDay(state) {
-  if (state.activeEvent) return state; // must resolve event first
+  if (state.activeEvent) return state;
 
   let next = { ...state };
   next.day = state.day + 1;
+
   // Season advance
-  const dayInYear = (state.day) % (DAYS_PER_SEASON * SEASONS.length);
+  const dayInYear = state.day % (DAYS_PER_SEASON * SEASONS.length);
   const nextSeasonIndex = Math.floor(dayInYear / DAYS_PER_SEASON) % SEASONS.length;
   if (nextSeasonIndex !== state.seasonIndex) {
     next.seasonIndex = nextSeasonIndex;
     log(next, `${SEASONS[nextSeasonIndex]} comes to the harbor.`);
   }
-
   const season = SEASONS[next.seasonIndex];
 
-  // Tick colonists
-  next.colonists = [];
-  for (const c of state.colonists) {
-    if (c.status === 'idle' || c.taskDaysRemaining <= 0) {
-      next.colonists.push(c);
+  // Tick active crews per family
+  next.families = [];
+  for (const f of state.families) {
+    if (!f.activeCrew) {
+      next.families.push(f);
       continue;
     }
-    const remaining = c.taskDaysRemaining - 1;
+    const remaining = f.activeCrew.daysRemaining - 1;
     if (remaining > 0) {
-      next.colonists.push({ ...c, taskDaysRemaining: remaining });
-    } else {
-      // Task completes
-      const task = TASKS[c.currentTask];
-      const undiscovered = getUndiscoveredLocations(next.locations);
-      const { yields, discovered, line } = resolveTask(task, c, {
-        season,
-        undiscoveredLocations: undiscovered,
+      next.families.push({
+        ...f,
+        activeCrew: { ...f.activeCrew, daysRemaining: remaining },
       });
-      if (yields && Object.keys(yields).length) {
-        next.resources = addResources(next.resources, yields);
-      }
-      if (discovered) {
-        const i = next.locations.findIndex((l) => l.id === discovered.id);
-        if (i !== -1) {
-          next.locations = [...next.locations];
-          next.locations[i] = { ...next.locations[i], discovered: true };
-        }
-      }
-      log(next, line);
-      next.colonists.push({
-        ...c,
-        status: 'idle',
-        currentTask: null,
-        taskDaysRemaining: 0,
-      });
+      continue;
     }
+
+    // Task completes
+    const task = TASKS[f.activeCrew.taskId];
+    const undiscovered = getUndiscoveredLocations(next.locations);
+    const { yields, discovered, line, influenceGain } = resolveTask(
+      task,
+      f,
+      f.activeCrew.size,
+      { season, undiscoveredLocations: undiscovered },
+    );
+    if (yields && Object.keys(yields).length) {
+      next.resources = addResources(next.resources || state.resources, yields);
+    }
+    if (discovered) {
+      const i = next.locations.findIndex((l) => l.id === discovered.id);
+      if (i !== -1) {
+        next.locations = [...next.locations];
+        next.locations[i] = { ...next.locations[i], discovered: true };
+      }
+    }
+    log(next, line);
+
+    // Return crew and credit influence.
+    const returnedPop = returnCrew(f, f.activeCrew.size, f.activeCrew.warriorsOnly);
+    next.families.push({
+      ...f,
+      population: returnedPop,
+      activeCrew: null,
+      influence: f.influence + influenceGain,
+    });
   }
 
   // Tick construction
@@ -286,19 +386,33 @@ function endDay(state) {
         next.construction.push({ ...cs, daysRemaining: remaining });
       } else {
         const b = BUILDINGS[cs.id];
-        next.buildings = [...(next.buildings || []), { id: b.id }];
+        next.buildings = [...(next.buildings || state.buildings), { id: b.id }];
         log(next, b.completeLine);
       }
     }
   }
 
-  // Consume food (1 per colonist per day)
-  const mouths = next.colonists.length;
-  const foodEaten = mouths;
-  next.resources = addResources(next.resources, { food: -foodEaten });
-  if (next.resources.food <= 0 && mouths > 0) {
-    log(next, `The colony goes hungry. The granary is bare.`);
+  // Consume food (1 per mouth per day)
+  const mouths = colonyPopulation(next.families);
+  next.resources = addResources(next.resources || state.resources, { food: -mouths });
+  if ((next.resources.food || 0) <= 0 && mouths > 0) {
+    log(next, `The colony goes hungry. Stores are bare.`);
   }
+
+  // Ambition tick — high ambition slowly erodes loyalty.
+  next.families = next.families.map((f) => {
+    if (f.ambition > 60) {
+      return {
+        ...f,
+        loyalty: Math.max(0, f.loyalty - 1),
+      };
+    }
+    // Idle families with ambition let it bleed off slowly
+    if (!f.activeCrew && f.ambition > 0) {
+      return { ...f, ambition: Math.max(0, f.ambition - 1) };
+    }
+    return f;
+  });
 
   // Event roll
   next.eventCooldown = Math.max(0, (state.eventCooldown || 0) - 1);
@@ -307,7 +421,7 @@ function endDay(state) {
       const evt = pickEvent();
       next.activeEvent = evt;
       log(next, `Event: ${evt.title}`);
-      next.eventCooldown = 4; // small floor so nothing fires next turn
+      next.eventCooldown = 4;
     } else {
       next.eventCooldown = 1;
     }
@@ -319,11 +433,12 @@ function endDay(state) {
 
 // ---------------- Persistence ----------------
 
-const SAVE_KEY = 'lsot.save.v1';
+const SAVE_KEY = 'lsot.save.v2'; // v2: families model
+const OLD_SAVE_KEY = 'lsot.save.v1';
 
 export function saveState(state) {
   try {
-    const cleaned = { ...state, activeEvent: null }; // don't persist mid-event
+    const cleaned = { ...state, activeEvent: null };
     localStorage.setItem(SAVE_KEY, JSON.stringify(cleaned));
     return true;
   } catch {
@@ -333,23 +448,13 @@ export function saveState(state) {
 
 export function loadState() {
   try {
+    // Wipe old v1 save format so it doesn't linger in the browser.
+    try { localStorage.removeItem(OLD_SAVE_KEY); } catch {}
+
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return null;
     const loaded = JSON.parse(raw);
-    // Back-fill for saves created before resource history was tracked.
-    if (!loaded.history || loaded.history.length === 0) {
-      loaded.history = [
-        {
-          day: loaded.day || 1,
-          food: Math.round(loaded.resources?.food || 0),
-          wood: Math.round(loaded.resources?.wood || 0),
-          stone: Math.round(loaded.resources?.stone || 0),
-          faith: Math.round(loaded.resources?.faith || 0),
-          pottery: Math.round(loaded.resources?.pottery || 0),
-          colonists: (loaded.colonists || []).length,
-        },
-      ];
-    }
+    if (!loaded.families || !Array.isArray(loaded.families)) return null;
     return loaded;
   } catch {
     return null;

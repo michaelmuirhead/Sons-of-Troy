@@ -18,9 +18,10 @@ import {
 /**
  * The Last Sons of Troy — text-based prototype.
  *
- * Click-driven turn loop. Player uses the ActionBar to dispatch,
- * build, explore, or end the day. Story events open a non-dismissible
- * modal that must be resolved before time can advance again.
+ * Click-driven turn loop. Player uses the ActionBar to dispatch a crew
+ * from one of the seven houses, commission a building, explore discovered
+ * places, or end the day. Story events open a non-dismissible council
+ * vote that must be resolved before time can advance again.
  */
 export default function App() {
   const [state, dispatch] = useReducer(reducer, undefined, () => {
@@ -59,8 +60,8 @@ export default function App() {
       {openModal === 'dispatch' && (
         <DispatchModal
           state={state}
-          onDispatch={(colonistId, taskId) =>
-            dispatch({ type: 'DISPATCH', colonistId, taskId })
+          onDispatch={(familyId, taskId, crewSize) =>
+            dispatch({ type: 'DISPATCH_CREW', familyId, taskId, crewSize })
           }
           onClose={() => setOpenModal(null)}
         />
@@ -87,6 +88,7 @@ export default function App() {
       {state.activeEvent && (
         <EventModal
           event={state.activeEvent}
+          families={state.families}
           onChoose={(choiceId) =>
             dispatch({ type: 'RESOLVE_EVENT', choiceId })
           }

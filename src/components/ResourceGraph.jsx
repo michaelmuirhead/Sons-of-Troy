@@ -3,18 +3,18 @@ import React, { useState } from 'react';
 /**
  * Line chart of resource levels over time. Pure SVG, no dependencies.
  *
- * `history` is an array of { day, food, wood, stone, faith, pottery, colonists }
+ * `history` is an array of { day, food, wood, stone, faith, pottery, population }
  * snapshots, one per day. We draw one polyline per toggled metric, auto-scaled
  * to the visible range.
  */
 
 const METRICS = [
-  { key: 'food',      label: 'Food',      color: '#c44536' }, // terracotta
-  { key: 'wood',      label: 'Wood',      color: '#6b7a3a' }, // olive
-  { key: 'stone',     label: 'Stone',     color: '#2e5c8a' }, // aegean
-  { key: 'faith',     label: 'Faith',     color: '#e07a5f' }, // ochre
-  { key: 'pottery',   label: 'Pottery',   color: '#7a6a54' }, // muted
-  { key: 'colonists', label: 'Colonists', color: '#1a1a1a' }, // black
+  { key: 'food',       label: 'Food',   color: '#c44536' }, // terracotta
+  { key: 'wood',       label: 'Wood',   color: '#6b7a3a' }, // olive
+  { key: 'stone',      label: 'Stone',  color: '#2e5c8a' }, // aegean
+  { key: 'faith',      label: 'Faith',  color: '#e07a5f' }, // ochre
+  { key: 'pottery',    label: 'Pottery', color: '#7a6a54' }, // muted
+  { key: 'population', label: 'Souls',  color: '#1a1a1a' }, // black
 ];
 
 const DEFAULT_ON = new Set(['food', 'wood', 'stone']);

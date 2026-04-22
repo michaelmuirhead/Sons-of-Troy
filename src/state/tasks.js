@@ -1,7 +1,11 @@
 /**
- * Dispatchable tasks. Each task has a duration in days, a base yield, and
- * optional trait modifiers that change the prose and output when the task
- * completes.
+ * Dispatchable tasks. A task is done by a *crew* drawn from a single family.
+ *
+ * - `base` is the yield per crew member (scaled linearly by crew size)
+ * - `days` is the base duration; crews beyond a threshold reduce it modestly
+ * - `warriorsOnly: true` means the crew must be warriors (scouting, raiding)
+ * - `influenceReward` is the prestige the family earns on completion, times
+ *   specialization bonus
  */
 
 export const TASKS = {
@@ -9,133 +13,130 @@ export const TASKS = {
     id: 'forage',
     label: 'Forage the hillside',
     description: 'Gather acorns, roots, and wild fennel in the scrub above the beach.',
-    days: 1,
-    base: { food: 6 },
+    days: 2,
+    base: { food: 3 },
     seasonYield: { Spring: 1.2, Summer: 1.0, Autumn: 1.3, Winter: 0.6 },
-    traitBonus: {
-      'Swift-footed': { food: 2 },
-      'Sea-wary':     { food: 0 },
-    },
-    completeLine: (c, y) =>
-      `${c.name} returns from the hillside with ${y.food} measures of food.`,
+    warriorsOnly: false,
+    influenceReward: 1,
+    completeLine: (family, crew, y) =>
+      `A foraging party of ${crew} from ${family.name} returns with ${y.food} measures of food.`,
   },
 
   fell: {
     id: 'fell',
-    label: 'Fell an oak',
-    description: 'Take an axe to the oak grove behind the dunes.',
-    days: 2,
-    base: { wood: 8 },
-    traitBonus: {
-      'Ox-strong':   { wood: 4 },
-      'Swift-footed': { wood: 1 },
-    },
-    completeLine: (c, y) =>
-      `${c.name} drags a bundle of oak to the camp — ${y.wood} logs.`,
+    label: 'Fell the oak grove',
+    description: 'Take axes to the oak grove behind the dunes.',
+    days: 3,
+    base: { wood: 4 },
+    warriorsOnly: false,
+    influenceReward: 1.5,
+    completeLine: (family, crew, y) =>
+      `${family.name} drags ${y.wood} logs of oak down to the camp.`,
   },
 
   quarry: {
     id: 'quarry',
     label: 'Quarry the outcrop',
     description: 'Work the stone outcrops on the headland with hammer and wedge.',
-    days: 2,
-    base: { stone: 6 },
-    traitBonus: {
-      'Ox-strong':   { stone: 3 },
-    },
-    completeLine: (c, y) =>
-      `${c.name} returns pale with dust, leading a stone-sledge. ${y.stone} blocks.`,
+    days: 3,
+    base: { stone: 3 },
+    warriorsOnly: false,
+    influenceReward: 1.5,
+    completeLine: (family, crew, y) =>
+      `${family.name} returns pale with dust, dragging stone-sledges — ${y.stone} blocks.`,
   },
 
   fish: {
     id: 'fish',
     label: 'Fish the bay',
-    description: 'Launch the little reed boat and cast nets into the morning bay.',
-    days: 1,
-    base: { food: 5 },
+    description: 'Launch reed boats into the morning bay.',
+    days: 2,
+    base: { food: 2.5 },
     seasonYield: { Spring: 1.1, Summer: 1.0, Autumn: 1.0, Winter: 0.7 },
-    traitBonus: {
-      'Sea-wary':    { food: 3 },
-    },
-    completeLine: (c, y) =>
-      `${c.name} beaches the reed boat heavy with silver. ${y.food} measures of fish.`,
+    warriorsOnly: false,
+    influenceReward: 1,
+    completeLine: (family, crew, y) =>
+      `The boats of ${family.name} beach heavy with silver — ${y.food} measures of fish.`,
   },
 
   tend: {
     id: 'tend',
-    label: "Tend the Shrine of Athena",
-    description: 'Keep the altar fire. Pour libations. Listen for the goddess.',
-    days: 1,
-    base: { faith: 2 },
-    traitBonus: {
-      'Pious':        { faith: 2 },
-      'Seer-touched': { faith: 1 },
-    },
-    completeLine: (c, y) =>
-      `${c.name} rises from the altar at dusk. The flame burned clean. +${y.faith} faith.`,
+    label: 'Tend the altars',
+    description: 'Keep the fires of household and colony. Pour libations.',
+    days: 2,
+    base: { faith: 1.2 },
+    warriorsOnly: false,
+    influenceReward: 1.5,
+    completeLine: (family, crew, y) =>
+      `${family.name} tends the altars through the watch. The flames burn clean. +${y.faith} faith.`,
   },
 
   scout: {
     id: 'scout',
     label: 'Scout the coast',
-    description: 'Walk the cliffs and headlands to map the land around New Ilion.',
-    days: 3,
+    description: 'Walk the cliffs and headlands. Only warriors may be sent.',
+    days: 4,
     base: {},
+    warriorsOnly: true,
     discoversLocation: true,
-    traitBonus: {
-      'Swift-footed': { daysDelta: -1 },
-      'Dreamer':      {},
-    },
-    completeLine: (c, discovered) =>
+    influenceReward: 2,
+    completeLine: (family, crew, discovered) =>
       discovered
-        ? `${c.name} returns with news of ${discovered.name} — ${discovered.description}`
-        : `${c.name} walks home weary. The coast has no new secret to reveal.`,
+        ? `Scouts of ${family.name} return with news of ${discovered.name} — ${discovered.description}`
+        : `Scouts of ${family.name} walk home weary. The coast has no new secret tonight.`,
   },
 };
 
+/* --------------------------------------------------------------------- */
+/* Resolution                                                             */
+/* --------------------------------------------------------------------- */
+
 /**
- * Resolve a dispatched task for a colonist. Returns { yields, discovered, line }.
+ * Resolve a dispatched crew's task. Returns:
+ *   { yields, discovered, line, influenceGain, specBonus, crew }
  */
-export function resolveTask(task, colonist, { season, undiscoveredLocations } = {}) {
-  const yields = { ...task.base };
+export function resolveTask(task, family, crew, { season, undiscoveredLocations } = {}) {
+  const specBonus = family.preferredTasks.includes(task.id) ? 1.5 : 1.0;
   const seasonMul = (task.seasonYield && task.seasonYield[season]) || 1;
-  for (const k of Object.keys(yields)) {
-    yields[k] = Math.round(yields[k] * seasonMul);
+
+  // Yield per crew member, scaled by crew size, season, and specialization.
+  const yields = {};
+  for (const [k, v] of Object.entries(task.base || {})) {
+    const raw = v * crew * seasonMul * specBonus;
+    yields[k] = Math.max(1, Math.round(raw));
   }
 
-  // Apply trait bonuses
-  for (const trait of colonist.traits || []) {
-    const bonus = task.traitBonus?.[trait];
-    if (!bonus) continue;
-    for (const [k, v] of Object.entries(bonus)) {
-      if (k === 'daysDelta') continue;
-      yields[k] = (yields[k] || 0) + v;
+  // Scout discovery
+  let discovered = null;
+  if (task.discoversLocation && undiscoveredLocations?.length) {
+    // Bigger scout parties are more likely to find something (cap at 90%)
+    const findChance = Math.min(0.9, 0.35 + 0.12 * crew + (specBonus - 1) * 0.5);
+    if (Math.random() < findChance) {
+      discovered = undiscoveredLocations[
+        Math.floor(Math.random() * undiscoveredLocations.length)
+      ];
     }
   }
 
-  // Scout discoveries
-  let discovered = null;
-  if (task.discoversLocation && undiscoveredLocations?.length) {
-    discovered = undiscoveredLocations[Math.floor(Math.random() * undiscoveredLocations.length)];
-  }
+  const influenceGain = (task.influenceReward || 1) * specBonus;
 
   const line = task.completeLine
     ? task.discoversLocation
-      ? task.completeLine(colonist, discovered)
-      : task.completeLine(colonist, yields)
-    : `${colonist.name} finishes the task.`;
+      ? task.completeLine(family, crew, discovered)
+      : task.completeLine(family, crew, yields)
+    : `${family.name} finishes the task.`;
 
-  return { yields, discovered, line };
+  return { yields, discovered, line, influenceGain, specBonus, crew };
 }
 
 /**
- * Duration for a task with colonist trait modifiers applied.
+ * Duration for a task. Larger crews finish a little faster; specialization
+ * shaves another day. Floor at 1 day.
  */
-export function taskDuration(task, colonist) {
+export function taskDuration(task, family, crew) {
   let d = task.days;
-  for (const trait of colonist.traits || []) {
-    const bonus = task.traitBonus?.[trait];
-    if (bonus?.daysDelta) d += bonus.daysDelta;
-  }
+  if (crew >= 6) d -= 1;
+  if (crew >= 12) d -= 1;
+  if (family.preferredTasks.includes(task.id)) d -= 1;
   return Math.max(1, d);
 }

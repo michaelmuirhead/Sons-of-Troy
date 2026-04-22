@@ -1,11 +1,15 @@
 import React from 'react';
+import { availableWorkers } from '../state/families.js';
 
 /**
  * Bottom action bar. All player actions live here. End Day is disabled
- * while an event is active.
+ * while a council event is active.
  */
 export default function ActionBar({ state, onOpen, onEndDay, onReset }) {
-  const idle = state.colonists.filter((c) => c.status === 'idle').length;
+  const freeHouses = state.families.filter(
+    (f) => !f.activeCrew && availableWorkers(f) > 0,
+  ).length;
+  const activeHouses = state.families.filter((f) => f.activeCrew).length;
   const hasEvent = !!state.activeEvent;
   const knownLocs = state.locations.filter((l) => l.discovered && !l.visited)
     .length;
@@ -15,11 +19,14 @@ export default function ActionBar({ state, onOpen, onEndDay, onReset }) {
       <div className="action-group">
         <button
           className="btn primary"
-          disabled={hasEvent || idle === 0}
+          disabled={hasEvent || freeHouses === 0}
           onClick={() => onOpen('dispatch')}
         >
           Dispatch
-          <span className="sub">{idle} idle</span>
+          <span className="sub">
+            {freeHouses} house{freeHouses === 1 ? '' : 's'} idle
+            {activeHouses > 0 ? ` · ${activeHouses} afield` : ''}
+          </span>
         </button>
         <button
           className="btn"

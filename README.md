@@ -9,17 +9,19 @@ This repository contains **Phase 0** — a playable, text-based prototype. The c
 ## What's in the prototype
 
 - A click-driven, turn-based loop — each **End Day** advances time, ticks tasks and construction, consumes food, and rolls for story events
-- Five founding colonists with Trojan names, origins, and traits (Helenus, Andromache, Pandarus, Cassandra, Dymas)
+- Seven founding **Trojan houses** (Antenor, Panthous, Ucalegon, Hicetaon, Capys, Hyrtacus, Thymoetes), each with its own ship, head, stance, specialty, and ~50 settlers split across warriors / craftsmen / women / children / elders
+- Famous founders live on as *house heads* — Helenus, Andromache, Pandarus, Cassandra, Dymas, Aretus, Helicaon — each speaking for their own line
 - Five resource types: **food**, **wood**, **stone**, **faith**, **pottery**
 - Four interaction types from the action bar:
-  - **Dispatch** a colonist to a task (forage, fell, quarry, fish, tend, scout)
+  - **Dispatch** a crew from one house to a task (forage, fell, quarry, fish, tend, scout). Specialty houses yield +50% and finish a day faster. Scout & war work is warriors-only.
   - **Build** granary, shrine, palisade, kiln, or longhouse
   - **Explore** discovered locations (olive cove, ruined shrine, hidden spring…)
-  - **Respond** to story events (a sail on the horizon, Athena's owl, fever, news of Aeneas…)
+  - **Respond** to story events — now resolved as a **council vote**. Each house aligns with the choice matching its stance (pious, bold, cautious, welcoming, traditional, wrathful, wise). You see who supports each option and their weighted influence. Override the council and dissenters lose loyalty and grow ambition.
+- Per-house political stats: **influence** (prestige won through action and council wins), **ambition** (rises when used off-specialty; erodes loyalty when high), **loyalty** (0–100; decays when overridden)
 - A rolling prose **Chronicle** that forms the narrative spine of the game
-- A side **Roster panel** with a live **resource-trend graph** (toggle lines for food, wood, stone, faith, pottery, colonists), plus colonists, buildings (complete and under construction), and known locations
+- A side panel with a live **resource-trend graph** (toggle lines for food, wood, stone, faith, pottery, souls), **seven house cards** with demographic bars and stance chips, buildings (complete and under construction), and known locations
 - A season clock (Spring → Summer → Autumn → Winter), with seasonal yield modifiers
-- **Browser save** via `localStorage` — close the tab, come back, resume
+- **Browser save** via `localStorage` (v2 schema) — close the tab, come back, resume
 
 ---
 
@@ -93,23 +95,24 @@ Colony Sims/
     ├── App.jsx             Top bar + chronicle + roster + action bar
     ├── App.css             Pottery-palette theme
     ├── state/
-    │   ├── gameState.js    Reducer, action types, save/load
-    │   ├── tasks.js        Tasks (forage, fell, quarry, fish, tend, scout)
+    │   ├── gameState.js    Reducer, DISPATCH_CREW / BUILD / EXPLORE / RESOLVE_EVENT / END_DAY, save/load v2
+    │   ├── families.js     Seven Trojan houses, stance vocabulary, council tally helpers
+    │   ├── tasks.js        Tasks (forage, fell, quarry, fish, tend, scout) — per-crew yield, specialization bonus
     │   ├── buildings.js    Buildings (granary, shrine, palisade, kiln, longhouse)
     │   ├── locations.js    Discoverable places along the coast
-    │   ├── events.js       Story-event pool with choices
-    │   └── names.js        Trojan names, origins, traits
+    │   └── events.js       Story-event pool — each choice carries stance tags for council voting
     ├── components/
     │   ├── TopBar.jsx        Colony name + day + season + resources
     │   ├── Chronicle.jsx     Main prose view (newest-first)
-    │   ├── RosterPanel.jsx   Trends graph + colonists + buildings + places
-    │   ├── ResourceGraph.jsx SVG line chart of resources over time
+    │   ├── RosterPanel.jsx   Trends graph + seven house cards + buildings + places
+    │   ├── FamilyCard.jsx    Compact card per house: demographics, influence/ambition/loyalty, crew status
+    │   ├── ResourceGraph.jsx SVG line chart of resources + souls over time
     │   ├── ActionBar.jsx     Dispatch / Build / Explore / End Day / Reset
     │   ├── Modal.jsx         Generic overlay
-    │   ├── DispatchModal.jsx
+    │   ├── DispatchModal.jsx 3-step crew picker (task → house → crew size)
     │   ├── BuildModal.jsx
     │   ├── ExploreModal.jsx
-    │   └── EventModal.jsx    (non-dismissible)
+    │   └── EventModal.jsx    Non-dismissible council vote with per-choice supporter chips
     └── game-archive/         Earlier Phaser prototype, kept for reference
 ```
 
