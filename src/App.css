@@ -1,5 +1,5 @@
 /* ==========================================================================
-   The Last Sons of Troy — Pottery palette theme (text-based)
+   The Last Sons of Troy — Pottery palette, dashboard layout
    ========================================================================== */
 
 :root {
@@ -33,7 +33,7 @@ body,
 .app {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr;
   height: 100vh;
   width: 100vw;
   background: var(--clr-cream);
@@ -42,19 +42,19 @@ body,
 /* ---------- Top bar ---------- */
 
 .top-bar {
-  grid-column: 1 / -1;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 24px;
+  padding: 10px 24px;
   background: var(--clr-cream);
   color: var(--clr-black);
   border-bottom: 4px double var(--clr-black);
   position: relative;
+  gap: 16px;
 }
 
 .top-bar .colony-name {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: bold;
   letter-spacing: 3px;
   text-transform: uppercase;
@@ -63,7 +63,7 @@ body,
 }
 
 .top-bar .date {
-  font-size: 14px;
+  font-size: 13px;
   font-style: italic;
   color: var(--clr-border);
   margin-top: 2px;
@@ -71,17 +71,17 @@ body,
 
 .top-bar .resources {
   display: flex;
-  gap: 12px;
+  gap: 10px;
 }
 
 .resource-chip {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 6px 12px;
+  padding: 5px 12px;
   background: var(--clr-parchment);
   border: 2px solid var(--clr-black);
-  min-width: 72px;
+  min-width: 66px;
 }
 
 .resource-chip .label {
@@ -97,39 +97,462 @@ body,
   color: var(--clr-terracotta);
 }
 
-/* ---------- Main chronicle view ---------- */
+/* ==========================================================================
+   Dashboard
+   ========================================================================== */
 
-.chronicle {
-  grid-row: 2;
-  grid-column: 1;
-  padding: 24px 32px;
-  overflow-y: auto;
+.dashboard {
   background: var(--clr-cream);
-  position: relative;
+  color: var(--clr-black);
+  padding: 14px 18px 0 18px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
 }
 
-.chronicle::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 24px;
-  right: 24px;
-  height: 8px;
-  background-image: repeating-linear-gradient(
-    90deg,
-    var(--clr-terracotta) 0 10px,
-    transparent 10px 18px,
-    var(--clr-terracotta) 18px 22px,
-    transparent 22px 30px
-  );
+/* ---------- House strip (7 compact cards in a row) ---------- */
+
+.dash-houses {
+  flex: 0 0 auto;
+}
+
+.dash-houses-title {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--clr-terracotta);
+  border-bottom: 2px solid var(--clr-terracotta);
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: baseline;
+}
+
+.house-strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.hs-card {
+  background: var(--clr-parchment);
+  border: 1.5px solid var(--clr-black);
+  padding: 6px 8px 7px 8px;
+  min-width: 0;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--clr-black);
+}
+
+.hs-name {
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hs-head {
+  font-size: 10px;
+  font-style: italic;
+  color: var(--clr-border);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hs-demo-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--clr-black);
+}
+
+.hs-demo-bar {
+  display: flex;
+  height: 5px;
+  width: 100%;
+  border: 1px solid var(--clr-black);
+  background: var(--clr-cream);
+  margin-bottom: 3px;
+  overflow: hidden;
+}
+
+.hs-demo-seg {
+  height: 100%;
+}
+
+.hs-mini {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  line-height: 1;
+}
+
+.hs-mini-lbl {
+  letter-spacing: 0.5px;
+  color: var(--clr-border);
+  font-weight: bold;
+  width: 22px;
+  flex: 0 0 22px;
+}
+
+.hs-mini-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--clr-cream);
+  border: 1px solid var(--clr-black);
+  overflow: hidden;
+  min-width: 0;
+}
+
+.hs-mini-bar-fill {
+  height: 100%;
+  transition: width 0.25s ease;
+}
+
+.hs-mini-val {
+  font-weight: bold;
+  color: var(--clr-black);
+  min-width: 16px;
+  text-align: right;
+}
+
+.hs-crew {
+  margin-top: 4px;
+  padding: 2px 5px;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 1px solid var(--clr-black);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hs-crew.idle {
+  background: var(--clr-cream);
+  color: var(--clr-muted);
+  border-color: var(--clr-muted);
+}
+
+.hs-crew.working {
+  background: var(--clr-terracotta);
+  color: var(--clr-cream);
+  border-color: var(--clr-terracotta);
+}
+
+/* ---------- Dashboard grid (3 columns of panels) ---------- */
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr 300px;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.dash-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.dash-card {
+  background: var(--clr-parchment);
+  border: 2px solid var(--clr-black);
+  padding: 10px 12px 12px 12px;
+  color: var(--clr-black);
+  min-width: 0;
+}
+
+.dash-card-title {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--clr-terracotta);
+  border-bottom: 2px solid var(--clr-terracotta);
+  padding-bottom: 3px;
+}
+
+.dash-sub {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--clr-border);
+  margin-top: 4px;
+  margin-bottom: 2px;
+  font-weight: bold;
+}
+
+/* ---------- Season panel ---------- */
+
+.season-panel {
+  background: var(--clr-parchment);
+  border: 2px solid var(--clr-black);
+  padding: 10px 12px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: var(--clr-black);
+}
+
+.season-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.season-day {
+  font-size: 22px;
+  font-weight: bold;
+  color: var(--clr-terracotta);
+  letter-spacing: 2px;
+}
+
+.season-label {
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--clr-border);
+  margin-top: 3px;
+}
+
+.season-wheel {
+  width: 120px;
+  height: 120px;
+  display: block;
+}
+
+.season-progress {
+  width: 100%;
+}
+
+.season-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--clr-border);
+  margin-bottom: 2px;
+}
+
+.season-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--clr-cream);
+  border: 1px solid var(--clr-black);
+  overflow: hidden;
+}
+
+.season-progress-fill {
+  height: 100%;
+  background: var(--clr-terracotta);
+  transition: width 0.25s ease;
+}
+
+.season-hint {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--clr-border);
+  text-align: center;
+  margin-top: 2px;
+}
+
+/* ---------- Settlement rows ---------- */
+
+.settlement-row {
+  padding: 4px 6px;
+  margin-bottom: 3px;
+  background: var(--clr-cream);
+  border: 1px solid var(--clr-black);
+  font-size: 12px;
+  color: var(--clr-black);
+}
+
+.settlement-row.built {
+  border-left: 3px solid var(--clr-olive);
+}
+
+.settlement-row.building {
+  border-left: 3px solid var(--clr-terracotta);
+}
+
+.settlement-name {
+  font-weight: bold;
+}
+
+.settlement-note {
+  font-size: 11px;
+  color: var(--clr-border);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.settlement-progress {
+  width: 100%;
+  height: 4px;
+  background: var(--clr-parchment);
+  border: 1px solid var(--clr-black);
+  margin: 3px 0;
+  overflow: hidden;
+}
+
+.settlement-progress-fill {
+  height: 100%;
+  background: var(--clr-terracotta);
+  transition: width 0.25s ease;
+}
+
+/* ---------- Coast rows ---------- */
+
+.coast-row {
+  padding: 4px 6px;
+  margin-bottom: 3px;
+  background: var(--clr-cream);
+  border: 1px solid var(--clr-black);
+  border-left: 3px solid var(--clr-aegean);
+  font-size: 12px;
+  color: var(--clr-black);
+}
+
+.coast-row.visited {
+  opacity: 0.6;
+  border-left-color: var(--clr-muted);
+}
+
+.coast-name {
+  font-weight: bold;
+}
+
+.coast-note {
+  font-size: 11px;
+  color: var(--clr-border);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.coast-hidden {
+  margin-top: 6px;
+  font-size: 11px;
+}
+
+/* ==========================================================================
+   Chronicle strip (bottom of dashboard)
+   ========================================================================== */
+
+.chronicle-strip {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  background: var(--clr-black);
+  border: 2px solid var(--clr-black);
+  margin-top: auto; /* push to the bottom of flex column */
+  margin-bottom: 0;
+  min-height: 52px;
+}
+
+.cs-entries {
+  flex: 1;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: var(--clr-cream);
+  overflow: hidden;
+}
+
+.cs-entry {
+  display: flex;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cs-when {
+  flex: 0 0 80px;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--clr-terracotta);
+  padding-top: 2px;
+}
+
+.cs-text {
+  flex: 1;
+  color: var(--clr-cream);
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cs-open {
+  flex: 0 0 auto;
+  padding: 0 18px;
+  background: var(--clr-terracotta);
+  color: var(--clr-cream);
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: none;
+  border-left: 2px solid var(--clr-cream);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  transition: background 0.15s;
+}
+
+.cs-open:hover {
+  background: var(--clr-ochre);
+}
+
+.cs-count {
+  font-size: 9px;
+  font-weight: normal;
+  letter-spacing: 1px;
+  opacity: 0.85;
+}
+
+/* Full chronicle inside the modal */
+
+.chronicle-full {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .chronicle-entry {
-  padding: 8px 0;
+  padding: 6px 0;
   border-bottom: 1px dashed var(--clr-parchment);
   color: var(--clr-black);
-  font-size: 15px;
-  line-height: 1.55;
+  font-size: 14px;
+  line-height: 1.5;
   display: flex;
   gap: 10px;
 }
@@ -141,7 +564,7 @@ body,
   letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--clr-terracotta);
-  padding-top: 3px;
+  padding-top: 2px;
 }
 
 .chronicle-entry .text {
@@ -149,106 +572,27 @@ body,
   color: var(--clr-black);
 }
 
-/* ---------- Side panel ---------- */
-
-.side-panel {
-  grid-row: 2;
-  grid-column: 2;
-  background: var(--clr-parchment);
-  color: var(--clr-black);
-  border-left: 4px double var(--clr-black);
-  overflow-y: auto;
-}
-
-.panel-section {
-  padding: 14px 16px;
-  border-bottom: 2px solid var(--clr-black);
-}
-
-.panel-section h2 {
-  margin: 0 0 10px 0;
-  font-size: 13px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--clr-terracotta);
-  border-bottom: 2px solid var(--clr-terracotta);
-  padding-bottom: 4px;
-}
-
-.colonist-card {
-  padding: 8px 10px;
-  margin-bottom: 6px;
-  background: var(--clr-cream);
-  border: 1px solid var(--clr-black);
-  color: var(--clr-black);
-  font-size: 13px;
-}
-
-.colonist-card .name {
-  font-weight: bold;
-  color: var(--clr-black);
-}
-
-.colonist-card .meta {
-  font-size: 11px;
-  color: var(--clr-border);
-  font-style: italic;
-  margin-top: 2px;
-  line-height: 1.3;
-}
-
-.colonist-card .status {
-  display: inline-block;
-  margin-top: 4px;
-  padding: 1px 6px;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  background: var(--clr-terracotta);
-  color: var(--clr-cream);
-}
-
-.colonist-card .status.idle {
-  background: var(--clr-muted);
-  color: var(--clr-cream);
-}
-
-.building-entry,
-.location-entry {
-  padding: 6px 8px;
-  margin-bottom: 4px;
-  background: var(--clr-cream);
-  border: 1px solid var(--clr-black);
-  font-size: 12px;
-  color: var(--clr-black);
-}
-
-.building-entry .progress {
-  font-size: 11px;
-  color: var(--clr-terracotta);
-  font-style: italic;
-}
-
-.location-entry.visited {
-  opacity: 0.7;
-}
-
-.location-entry .loc-name {
-  font-weight: bold;
-  font-size: 13px;
-}
-
-/* ---------- Action bar ---------- */
+/* ==========================================================================
+   Action bar
+   ========================================================================== */
 
 .action-bar {
-  grid-column: 1 / -1;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   gap: 16px;
-  padding: 16px 24px;
+  padding: 14px 24px;
   background: var(--clr-black);
   border-top: 4px double var(--clr-cream);
+}
+
+.action-group {
+  display: flex;
+  gap: 10px;
+}
+
+.action-group.right {
+  margin-left: auto;
 }
 
 .btn {
@@ -257,12 +601,16 @@ body,
   font-weight: bold;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  padding: 10px 20px;
+  padding: 9px 18px;
   background: var(--clr-cream);
   color: var(--clr-black);
   border: 2px solid var(--clr-cream);
   cursor: pointer;
   transition: background 0.15s, color 0.15s, transform 0.1s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
 }
 
 .btn:hover:not(:disabled) {
@@ -298,7 +646,27 @@ body,
   color: var(--clr-black);
 }
 
-/* ---------- Modal ---------- */
+.btn .sub {
+  font-size: 9px;
+  font-weight: normal;
+  letter-spacing: 1px;
+  margin-top: 3px;
+  color: var(--clr-border);
+  font-style: italic;
+}
+
+.btn.primary .sub {
+  color: var(--clr-cream);
+  opacity: 0.85;
+}
+
+.btn.ghost .sub {
+  color: var(--clr-muted);
+}
+
+/* ==========================================================================
+   Modals (Dispatch / Build / Explore / Event / Chronicle)
+   ========================================================================== */
 
 .modal-overlay {
   position: fixed;
@@ -308,7 +676,7 @@ body,
   align-items: center;
   justify-content: center;
   z-index: 50;
-  animation: fadeIn 0.25s ease;
+  animation: fadeIn 0.2s ease;
 }
 
 @keyframes fadeIn {
@@ -321,7 +689,7 @@ body,
   color: var(--clr-black);
   border: 4px double var(--clr-black);
   padding: 24px 28px;
-  max-width: 620px;
+  max-width: 640px;
   width: 92%;
   max-height: 86vh;
   overflow-y: auto;
@@ -352,7 +720,7 @@ body,
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 14px;
 }
 
 .modal .choice-btn {
@@ -401,26 +769,28 @@ body,
 
 /* ---------- Scrollbar polish ---------- */
 
-.chronicle::-webkit-scrollbar,
-.side-panel::-webkit-scrollbar,
-.modal::-webkit-scrollbar {
+.dashboard::-webkit-scrollbar,
+.modal::-webkit-scrollbar,
+.chronicle-full::-webkit-scrollbar {
   width: 10px;
 }
 
-.chronicle::-webkit-scrollbar-thumb,
-.side-panel::-webkit-scrollbar-thumb,
-.modal::-webkit-scrollbar-thumb {
+.dashboard::-webkit-scrollbar-thumb,
+.modal::-webkit-scrollbar-thumb,
+.chronicle-full::-webkit-scrollbar-thumb {
   background: var(--clr-terracotta);
   border: 2px solid var(--clr-cream);
 }
 
-.chronicle::-webkit-scrollbar-track,
-.side-panel::-webkit-scrollbar-track,
-.modal::-webkit-scrollbar-track {
+.dashboard::-webkit-scrollbar-track,
+.modal::-webkit-scrollbar-track,
+.chronicle-full::-webkit-scrollbar-track {
   background: var(--clr-parchment);
 }
 
-/* ---------- Small helpers ---------- */
+/* ==========================================================================
+   Small helpers and shared chips
+   ========================================================================== */
 
 .muted {
   color: var(--clr-muted);
@@ -463,46 +833,6 @@ body,
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-}
-
-/* ---------- Action bar groups ---------- */
-
-.action-group {
-  display: flex;
-  gap: 10px;
-}
-
-.action-group.right {
-  margin-left: auto;
-}
-
-.action-bar {
-  justify-content: space-between;
-}
-
-.action-bar .btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1.1;
-}
-
-.action-bar .btn .sub {
-  font-size: 9px;
-  font-weight: normal;
-  letter-spacing: 1px;
-  margin-top: 3px;
-  color: var(--clr-border);
-  font-style: italic;
-}
-
-.action-bar .btn.primary .sub {
-  color: var(--clr-cream);
-  opacity: 0.85;
-}
-
-.action-bar .btn.ghost .sub {
-  color: var(--clr-muted);
 }
 
 .visited-list {
@@ -557,209 +887,6 @@ body,
   text-align: center;
 }
 
-/* ---------- Family card (seven houses) ---------- */
-
-.family-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.family-card {
-  padding: 8px 10px 9px 12px;
-  background: var(--clr-cream);
-  border: 1px solid var(--clr-black);
-  border-left-width: 6px; /* overwritten inline with house color */
-  color: var(--clr-black);
-  font-size: 12px;
-}
-
-.fc-head {
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 0.5px;
-  line-height: 1.1;
-}
-
-.fc-sub {
-  font-size: 11px;
-  color: var(--clr-border);
-  line-height: 1.3;
-  margin-top: 1px;
-}
-
-.fc-ship {
-  font-size: 10px;
-  font-style: italic;
-  color: var(--clr-muted);
-  margin-top: 2px;
-  letter-spacing: 0.5px;
-}
-
-.fc-demo-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10px;
-  color: var(--clr-border);
-  margin-top: 7px;
-  letter-spacing: 0.5px;
-}
-
-.fc-demo-bar {
-  display: flex;
-  height: 6px;
-  width: 100%;
-  margin-top: 2px;
-  background: var(--clr-parchment);
-  border: 1px solid var(--clr-black);
-  overflow: hidden;
-}
-
-.fc-demo-seg {
-  height: 100%;
-}
-
-.fc-demo-empty {
-  flex: 1;
-  background: var(--clr-parchment);
-}
-
-.fc-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-top: 6px;
-}
-
-.fc-stat {
-  line-height: 1.1;
-}
-
-.fc-stat-top {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-
-.fc-stat-label {
-  color: var(--clr-border);
-}
-
-.fc-stat-val {
-  color: var(--clr-black);
-  font-weight: bold;
-}
-
-.fc-stat-bar {
-  height: 3px;
-  width: 100%;
-  background: var(--clr-parchment);
-  border: 1px solid var(--clr-black);
-  margin-top: 1px;
-}
-
-.fc-stat-bar-fill {
-  height: 100%;
-  transition: width 0.25s ease;
-}
-
-.fc-crew {
-  margin-top: 6px;
-  padding: 2px 6px;
-  font-size: 10px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  background: var(--clr-parchment);
-  color: var(--clr-border);
-  border: 1px solid var(--clr-muted);
-  display: inline-block;
-}
-
-.fc-crew.working {
-  background: var(--clr-terracotta);
-  color: var(--clr-cream);
-  border-color: var(--clr-terracotta);
-}
-
-.fc-tags {
-  margin-top: 6px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-}
-
-.stance-chip,
-.spec-chip {
-  font-size: 9px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  padding: 1px 5px;
-  border: 1px solid var(--clr-black);
-}
-
-.stance-chip {
-  background: var(--clr-aegean);
-  color: var(--clr-cream);
-}
-
-.spec-chip {
-  background: var(--clr-olive);
-  color: var(--clr-cream);
-}
-
-/* ---------- House chips in modals / tallies ---------- */
-
-.house-chip {
-  display: inline-block;
-  padding: 1px 6px;
-  margin: 1px 3px 1px 0;
-  font-size: 10px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: var(--clr-cream);
-  border: 1px solid var(--clr-black);
-}
-
-/* Council tally rows inside EventModal */
-
-.council-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 4px;
-  font-size: 11px;
-  color: var(--clr-border);
-}
-
-.council-weight {
-  font-weight: bold;
-  color: var(--clr-terracotta);
-  font-size: 11px;
-  letter-spacing: 1px;
-}
-
-.council-note {
-  margin-top: 10px;
-  padding: 6px 8px;
-  background: var(--clr-parchment);
-  border-left: 3px solid var(--clr-aegean);
-  font-size: 11px;
-  color: var(--clr-border);
-  font-style: italic;
-  line-height: 1.4;
-}
-
-.override-warning {
-  font-size: 10px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: var(--clr-terracotta);
-  margin-top: 4px;
-  font-weight: bold;
-}
-
 /* ---------- Dispatch modal crew picker ---------- */
 
 .crew-slider-wrap {
@@ -808,4 +935,77 @@ body,
   border: 1px solid var(--clr-black);
   color: var(--clr-black);
   line-height: 1.5;
+}
+
+/* ---------- Council chips in EventModal ---------- */
+
+.house-chip {
+  display: inline-block;
+  padding: 1px 6px;
+  margin: 1px 3px 1px 0;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--clr-cream);
+  border: 1px solid var(--clr-black);
+}
+
+.council-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--clr-border);
+  flex-wrap: wrap;
+}
+
+.council-weight {
+  font-weight: bold;
+  color: var(--clr-terracotta);
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.council-note {
+  margin-top: 10px;
+  padding: 6px 8px;
+  background: var(--clr-parchment);
+  border-left: 3px solid var(--clr-aegean);
+  font-size: 11px;
+  color: var(--clr-border);
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.override-warning {
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--clr-terracotta);
+  margin-top: 4px;
+  font-weight: bold;
+}
+
+/* ---------- Responsive: collapse the 3-column grid when cramped ---------- */
+
+@media (max-width: 1100px) {
+  .dash-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .dash-col-right {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 780px) {
+  .dash-grid {
+    grid-template-columns: 1fr;
+  }
+  .dash-col-right {
+    grid-column: auto;
+  }
+  .house-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }

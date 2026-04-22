@@ -1,7 +1,6 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import TopBar from './components/TopBar.jsx';
-import Chronicle from './components/Chronicle.jsx';
-import RosterPanel from './components/RosterPanel.jsx';
+import Dashboard from './components/Dashboard.jsx';
 import ActionBar from './components/ActionBar.jsx';
 import DispatchModal from './components/DispatchModal.jsx';
 import BuildModal from './components/BuildModal.jsx';
@@ -16,12 +15,12 @@ import {
 } from './state/gameState.js';
 
 /**
- * The Last Sons of Troy — text-based prototype.
+ * The Last Sons of Troy — text-based prototype, dashboard layout.
  *
- * Click-driven turn loop. Player uses the ActionBar to dispatch a crew
- * from one of the seven houses, commission a building, explore discovered
- * places, or end the day. Story events open a non-dismissible council
- * vote that must be resolved before time can advance again.
+ * Top bar with colony identity + resources, then a dashboard that
+ * shows the seven houses and all colony state at a glance. The
+ * chronicle lives as a strip at the bottom and opens to full prose
+ * in a modal. Story events block End Day until the council has voted.
  */
 export default function App() {
   const [state, dispatch] = useReducer(reducer, undefined, () => {
@@ -47,8 +46,7 @@ export default function App() {
     <div className="app">
       <TopBar state={state} />
 
-      <Chronicle entries={state.chronicle} />
-      <RosterPanel state={state} />
+      <Dashboard state={state} />
 
       <ActionBar
         state={state}
